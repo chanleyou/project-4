@@ -5,7 +5,7 @@ module.exports = {
     mode: 'development',
     entry: [
         'webpack-hot-middleware/client',
-        './src/index.js'
+        './src/index.jsx'
     ],
     module: {
         rules: [
@@ -13,15 +13,27 @@ module.exports = {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
                 use: ['babel-loader']
-            },
+						},
+						{
+							test: /\.scss$/,
+            use: [
+                "style-loader", // creates style nodes from JS strings
+                "css-loader", // translates CSS into CommonJS
+                "sass-loader" // compiles Sass to CSS, using Node Sass by default
+            ]
+						},
             {
                 test: /\.css$/,
-                loader: 'stule-loader!css-loader'
-            }
+                loader: 'style-loader!css-loader'
+						},
+						{
+							test: /\.png$/,
+							loader: 'file-loader'
+						}
         ]
     },
     resolve: {
-        extensions: ['*', '.js', '.jsx']
+        extensions: ['*', '.js', '.jsx'],
     },
     output: {
         path: `${__dirname}/dist`,
