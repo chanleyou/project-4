@@ -10,9 +10,15 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+const ROT = require('rot-js');
 
 import './style.scss'; // global stylesheet
 // import Greeting from './Components/Greeting/greeting';
+
+// rng
+const random = (min, max) => {
+	return min + Math.floor(Math.random() * (max - min + 1));
+}
 
 class HealthBar extends React.Component {
 
@@ -33,27 +39,57 @@ class App extends React.Component {
 	constructor() {
 		super()
 
+		const xA = 32;
+		const yA = 16;
+
+		const map = new ROT.Map.Uniform(xA, yA, {roomDugPercentage: 0.2});
+		const mapArray = [];
+
+		for (let i = 0; i < yA; i++) {
+			mapArray.push([]);
+		}	
+
+		map.create(function(x, y, value) {
+			mapArray[y][x] = value;
+		})
+
 		let newBoard = []
-		for (let i = 0; i < 8; i++) {
+		for (let y = 0; y < yA; y++) {
 			let row = [];
-			for (let y = 0; y < 8; y++) {
-				let tile = {
-					unit: null,
-					floor: null
-				};
+			for (let x = 0; x < xA; x++) {
+				let tile = {};
+				if (mapArray[y][x]) {
+					tile = {
+						unit: 'wall',
+						floor: 'wall'
+					}
+				} else {
+					tile = {
+						unit: null,
+						floor: null
+					};
+				}
 				row.push(tile);
 			}
 			newBoard.push(row);
 		}
 
-		newBoard[4][4].unit = 'player';
+		let randomX = random(0, xA - 1);
+		let randomY = random(0, yA - 1);
+
+		while (mapArray[randomY][randomX]) {
+			randomX = random(0, xA - 1);
+			randomY = random(0, yA - 1);
+		}
+
+		newBoard[randomY][randomX].unit = 'player';
 
 		this.state = {
-			pX: 4,
-			pY: 4,
+			pX: randomX,
+			pY: randomY,
 			playerHP: 50,
 			board: newBoard,
-			playerTile: newBoard[4][4]
+			playerTile: newBoard[randomY][randomX]
 		}
 
 		this.movePlayer = this.movePlayer.bind(this);
@@ -117,13 +153,17 @@ class App extends React.Component {
 
 			const rows = row.map((tile, colIndex) => {
 
+				let tileClass = "tile";
 				let player = <template />
-				if (tile.unit === "player") {
+
+				if (tile.unit === "wall") {
+					tileClass = "wall";
+				} else if (tile.unit === "player") {
 					player = <div className="player"></div>
 				}
 
 				return (
-					<div className="tile" key={colIndex}>
+					<div className={tileClass} key={colIndex}>
 						{player}
 					</div>
 				)
