@@ -13,113 +13,181 @@ import ReactDOM from 'react-dom';
 const ROT = require('rot-js');
 
 import './style.scss'; // global stylesheet
-// import Greeting from './Components/Greeting/greeting';
+import UI from './components/ui';
 
 // rng
 const random = (min, max) => {
 	return min + Math.floor(Math.random() * (max - min + 1));
 }
 
-class HealthBar extends React.Component {
-
-	render() {
-
-		console.log(this.props.hp);
-
-		return (
-			<div className="health-bar">
-				<span className="health-span">{this.props.hp}</span>
-				<div className="health" style={{ width: this.props.hp + '%' }}></div>
-			</div>
-		)
-	}
-}
-
-class App extends React.Component {
+class Game extends React.Component {
 	constructor() {
 		super()
 
-		const xA = 32;
-		const yA = 16;
-
-		const map = new ROT.Map.Uniform(xA, yA, {roomDugPercentage: 0.2});
-		const mapArray = [];
-
-		for (let i = 0; i < yA; i++) {
-			mapArray.push([]);
-		}	
-
-		map.create(function(x, y, value) {
-			mapArray[y][x] = value;
-		})
-
-		let newBoard = []
-		for (let y = 0; y < yA; y++) {
-			let row = [];
-			for (let x = 0; x < xA; x++) {
-				let tile = {};
-				if (mapArray[y][x]) {
-					tile = {
-						unit: 'wall',
-						floor: 'wall'
-					}
-				} else {
-					tile = {
-						unit: null,
-						floor: null
-					};
-				}
-				row.push(tile);
-			}
-			newBoard.push(row);
-		}
-
-		let randomX = random(0, xA - 1);
-		let randomY = random(0, yA - 1);
-
-		while (mapArray[randomY][randomX]) {
-			randomX = random(0, xA - 1);
-			randomY = random(0, yA - 1);
-		}
-
-		newBoard[randomY][randomX].unit = 'player';
+		let floor = this.createFloor(1);
 
 		this.state = {
-			pX: randomX,
-			pY: randomY,
-			playerHP: 50,
-			board: newBoard,
-			playerTile: newBoard[randomY][randomX]
+			player: {
+				name: 'Test',
+				currentHP: 10,
+				maxHP: 10,
+				tile: floor.board[floor.y][floor.x]
+			},
+			turn: true,
+			floor: 1,
+			pX: floor.x,
+			pY: floor.y,
+			board: floor.board,
+			enemies: floor.enemies,
+			log: []
 		}
 
-		this.movePlayer = this.movePlayer.bind(this);
+		this.controls = this.controls.bind(this);
 		this.attemptMove = this.attemptMove.bind(this);
-
+		this.createFloor = this.createFloor.bind(this);
+		this.nextFloor = this.nextFloor.bind(this);
+		this.updateLog = this.updateLog.bind(this);
+		this.monsterMove = this.monsterMove.bind(this);
 	}
 
-	movePlayer(event) {
+	createFloor(floor) {
+		const xA = 34;
+		const yA = 20;
+		const map = new ROT.Map.Uniform(xA, yA, { roomDugPercentage: 0.25 });
 
-		let x = this.state.pX;
-		let y = this.state.pY;
+		const board = [];
+
+		for (let i = 0; i < yA; i++) {
+			board.push([]);
+		}
+
+		map.create(function (x, y, value) {
+			if (value) {
+				board[y][x] = {
+					unit: "wall",
+					floor: "wall"
+				}
+			} else {
+				board[y][x] = {
+					unit: null,
+					floor: null
+				}
+			}
+			board[y][x].x = x;
+			board[y][x].y = y;
+		})
+
+		// places staircase to next floor in a random room
+		const rooms = map.getRooms();
+		const randomRoom = ROT.RNG.getItem(rooms);
+		let stairX = random(randomRoom.getLeft(), randomRoom.getRight());
+		let stairY = random(randomRoom.getTop(), randomRoom.getBottom());
+
+		board[stairY][stairX].floor = 'stairs';
+
+
+		// places the player
+		let playerX = random(0, xA - 1);
+		let playerY = random(0, yA - 1);
+
+		while (board[playerY][playerX].unit) {
+			playerX = random(0, xA - 1);
+			playerY = random(0, yA - 1);
+		}
+
+		board[playerY][playerX].unit = 'player';
+
+		// places random enemies
+		let enemies = [];
+
+		for (let n = 0; n < 1 + floor; n++) {
+			let unitX = random(0, xA - 1);
+			let unitY = random(0, yA - 1);
+
+			while (board[unitY][unitX].unit) {
+				unitX = random(0, xA - 1);
+				unitY = random(0, yA - 1);
+			}
+			
+			enemies.push({
+				name: 'Orc',
+				currentHP: 5,
+				maxHP: 5,
+				tile: board[unitY][unitX]
+			})
+
+			board[unitY][unitX].unit = 'orc';
+		}
+
+		return {
+			board: board,
+			enemies: enemies,
+			x: playerX,
+			y: playerY
+		}
+	}
+
+	controls(event) {
+
+		let x = this.state.player.tile.x;
+		let y = this.state.player.tile.y;
 
 		var keyPressed = event.keyCode;
 		switch (keyPressed) {
-			case 87: // w
+			// case 87: // w
+			case 104: // numpad 8
 				this.attemptMove(y - 1, x);
 				break;
-			case 83: // s
+			// case 83: // s
+			case 98: // numpad 2
 				this.attemptMove(y + 1, x);
 				break;
-			case 65: // a
+			// case 65: // a
+			case 100: // numpad 4
 				this.attemptMove(y, x - 1);
 				break;
-			case 68: // d
+			// case 68: // d
+			case 102: // numpad 6
 				this.attemptMove(y, x + 1);
+				break;
+			case 103: // numpad 7
+				this.attemptMove(y - 1, x - 1);
+				break;
+			case 105: // numpad 9
+				this.attemptMove(y - 1, x + 1);
+				break;
+			case 97: // numpad 1
+				this.attemptMove(y + 1, x - 1);
+				break;
+			case 99: // numpad 3
+				this.attemptMove(y + 1, x + 1);
+				break;
+			case 190: // >
+				if (this.state.player.tile.floor === 'stairs') {
+					this.nextFloor();
+				}
 				break;
 		}
 	}
 
+	nextFloor() {
+		let newFloor = this.createFloor(this.state.floor + 1);
+
+		this.updateLog(`Moving to DL ${this.state.floor + 1}.`);
+
+		this.state.player.tile = newFloor.board[newFloor.y][newFloor.x];
+
+		this.setState({
+			floor: this.state.floor + 1,
+			board: newFloor.board,
+		});
+	}
+
 	attemptMove(y, x) {
+		if (!this.state.turn) {
+			return false;
+		}
+
 		if (y < 0 || x < 0 || y >= this.state.board.length || x >= this.state.board[0].length) {
 			console.log("Can't move out of map.");
 			return false;
@@ -132,20 +200,57 @@ class App extends React.Component {
 			return false;
 		}
 
-		this.state.playerTile.unit = null;
+		this.state.player.tile.unit = null;
 		targetTile.unit = "player";
-		this.state.playerTile = targetTile;
+		this.state.player.tile = targetTile;
 		this.setState({
 			pX: x,
 			pY: y
 		})
 
+		this.state.turn = false;
+
+		this.monsterMove();
 		return true;
+	}
+
+	monsterMove() {
+		
+		const path = new ROT.Path.Dijkstra(this.state.player.tile.x, this.state.player.tile.y, (x, y) => {
+			return !this.state.board[y][x].unit;
+		});
+
+		const method = (x, y) => {
+			this.state.board[y][x].floor = 'select';
+			console.log('Hey!');
+		}
+
+		for (let i in this.state.enemies) {
+			let unit = this.state.enemies[i];
+			
+			path.compute(unit.tile.x, unit.tile.y, function (x, y) {
+				method(x, y);
+			});
+		}
+
+		// setTimeout(() => {
+			this.setState({turn: true});
+		// }, 1);
+	}
+
+	updateLog(text, color = "") {
+		this.state.log.push({ text: text, color: color });
+
+		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight;
+
+		while (this.state.log.length > 30) {
+			this.state.log.shift();
+		}
 	}
 
 	render() {
 
-		window.addEventListener('keydown', this.movePlayer);
+		window.addEventListener('keydown', this.controls);
 
 		console.log(this.state);
 
@@ -154,17 +259,28 @@ class App extends React.Component {
 			const rows = row.map((tile, colIndex) => {
 
 				let tileClass = "tile";
-				let player = <template />
+				let unit = <template />
+
+				if (tile.floor === 'select') {
+					tileClass += " select";
+				}
 
 				if (tile.unit === "wall") {
-					tileClass = "wall";
+					tileClass = "";
 				} else if (tile.unit === "player") {
-					player = <div className="player"></div>
+					unit = <span className="player"></span>
+				} else if (tile.unit == "orc") {
+					unit = <span className="orc"></span>
+
+				}
+
+				if (tile.floor === "stairs") {
+					tileClass = "stairs";
 				}
 
 				return (
 					<div className={tileClass} key={colIndex}>
-						{player}
+						{unit}
 					</div>
 				)
 			})
@@ -178,17 +294,17 @@ class App extends React.Component {
 
 		return (
 			<div className="root">
-				<HealthBar hp={this.state.playerHP} />
 				<div className="board">
 					{board}
 				</div>
+				<UI player={this.state.player} log={this.state.log} />
 			</div>
 		)
 	}
 };
 
 ReactDOM.render(
-	<App />,
+	<Game />,
 	document.getElementById('app')
 );
 
