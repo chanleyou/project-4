@@ -35,6 +35,7 @@ class Game extends React.Component {
 			inventory: [],
 			isRunning: true,
 			turn: true,
+			turnCounter: 1,
 			floor: 1,
 			board: null,
 			enemies: null,
@@ -54,6 +55,9 @@ class Game extends React.Component {
 		this.updateLog = this.updateLog.bind(this);
 		this.monsterMove = this.monsterMove.bind(this);
 		this.playerLoseLife = this.playerLoseLife.bind(this);
+		this.playerAttack = this.playerAttack.bind(this);
+		this.playerGainLife = this.playerGainLife.bind(this);
+		this.wait = this.wait.bind(this);
 	}
 
 	createFloor(floor) {
@@ -178,6 +182,26 @@ class Game extends React.Component {
 					this.nextFloor();
 				}
 				break;
+			case 101: // numpad 5
+			case 53: // 5
+				this.wait()
+				break;
+		}
+	}
+
+	wait () {
+		this.updateLog('You stop and wait.');
+		this.state.turn = false;
+		this.state.turnCounter += 1;
+
+		this.monsterMove();
+	}
+
+	playerGainLife (heal) {
+		this.state.player.currentHP += heal;
+
+		if (this.state.player.currentHP > this.state.player.maxHP) {
+			this.state.player.currentHP = this.state.player.maxHP;
 		}
 	}
 
@@ -213,15 +237,33 @@ class Game extends React.Component {
 			targetTile.unit = this.state.player;
 			this.state.player.tile = targetTile;	
 		} else {
-
-			// needs a reference to unit in tile
+			this.playerAttack(targetTile.unit);
 		}
 
+		this.state.turnCounter++;
 		this.state.turn = false;
+
 		this.monsterMove();
 	}
 
+	playerAttack(unit) {
+		let damage = random(2, 4);
+		unit.currentHP -= damage;
+		this.updateLog(`You hit the ${unit.name.toLowerCase()} for ${damage} damage!`);
+		if (unit.currentHP <= 0) {
+			this.state.enemies.splice(this.state.enemies.indexOf(unit), 1);
+			this.updateLog(`You slay the ${unit.name.toLowerCase()}!`);
+			unit.tile.unit = null;
+		}
+		
+	}
+
 	monsterMove() {
+
+		// player regens 1 hp every 3 rounds
+		if (this.state.turnCounter % 3 === 0) {
+			this.playerGainLife(1);
+		}
 
 		const path = new ROT.Path.AStar(this.state.player.tile.x, this.state.player.tile.y, (x, y) => {
 			return this.state.board[y][x].unit !== 'wall';
@@ -269,11 +311,12 @@ class Game extends React.Component {
 	updateLog(text, color = "") {
 		this.state.log.push({ text: text, color: color });
 
-		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight;
-
+		
 		while (this.state.log.length > 30) {
 			this.state.log.shift();
 		}
+
+		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight; // this is not working as well it should
 	}
 
 	componentDidMount() {
@@ -282,7 +325,7 @@ class Game extends React.Component {
 
 	render() {
 
-		console.log(this.state);
+		console.log(`Turn ${this.state.turnCounter}:`, this.state);
 
 		const board = this.state.board.map((row, rowIndex) => {
 
