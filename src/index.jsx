@@ -35,8 +35,6 @@ class Game extends React.Component {
 			},
 			turn: true,
 			floor: 1,
-			pX: floor.x,
-			pY: floor.y,
 			board: floor.board,
 			enemies: floor.enemies,
 			log: []
@@ -180,6 +178,7 @@ class Game extends React.Component {
 		this.setState({
 			floor: this.state.floor + 1,
 			board: newFloor.board,
+			enemies: newFloor.enemies
 		});
 	}
 
@@ -189,24 +188,18 @@ class Game extends React.Component {
 		}
 
 		if (y < 0 || x < 0 || y >= this.state.board.length || x >= this.state.board[0].length) {
-			console.log("Can't move out of map.");
 			return false;
 		}
 
 		const targetTile = this.state.board[y][x];
 
 		if (targetTile.unit) {
-			console.log("Can't move into another unit!");
 			return false;
 		}
 
 		this.state.player.tile.unit = null;
 		targetTile.unit = "player";
 		this.state.player.tile = targetTile;
-		this.setState({
-			pX: x,
-			pY: y
-		})
 
 		this.state.turn = false;
 
@@ -216,26 +209,34 @@ class Game extends React.Component {
 
 	monsterMove() {
 		
-		const path = new ROT.Path.Dijkstra(this.state.player.tile.x, this.state.player.tile.y, (x, y) => {
-			return !this.state.board[y][x].unit;
+		const path = new ROT.Path.AStar(this.state.player.tile.x, this.state.player.tile.y, (x, y) => {
+			return this.state.board[y][x].unit !== 'wall';
 		});
-
-		const method = (x, y) => {
-			this.state.board[y][x].floor = 'select';
-			console.log('Hey!');
-		}
 
 		for (let i in this.state.enemies) {
 			let unit = this.state.enemies[i];
 			
-			path.compute(unit.tile.x, unit.tile.y, function (x, y) {
-				method(x, y);
+			const pathToPlayer = [];
+			
+			path.compute(unit.tile.x, unit.tile.y, (x, y) => {
+				pathToPlayer.push(this.state.board[y][x]);
 			});
+			
+			if (pathToPlayer[1].unit === 'player') {
+				// monster attack player
+				this.updateLog('Monster attacks you!', 'red');
+			} else if (!pathToPlayer[1].unit) {
+				// move
+				let targetTile = pathToPlayer[1];
+				unit.tile.unit = null;
+				targetTile.unit = unit.name.toLowerCase();
+				unit.tile = targetTile;
+			}
 		}
 
-		// setTimeout(() => {
+		setTimeout(() => {
 			this.setState({turn: true});
-		// }, 1);
+		}, 1);
 	}
 
 	updateLog(text, color = "") {
@@ -248,9 +249,11 @@ class Game extends React.Component {
 		}
 	}
 
-	render() {
-
+	componentDidMount() {
 		window.addEventListener('keydown', this.controls);
+	}
+
+	render() {
 
 		console.log(this.state);
 
@@ -296,7 +299,7 @@ class Game extends React.Component {
 			<div className="root">
 				<div className="board">
 					{board}
-				</div>
+				</div>`
 				<UI player={this.state.player} log={this.state.log} />
 			</div>
 		)
