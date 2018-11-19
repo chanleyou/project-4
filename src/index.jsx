@@ -24,28 +24,36 @@ class Game extends React.Component {
 	constructor() {
 		super()
 
-		let floor = this.createFloor(1);
-
 		this.state = {
 			player: {
 				name: 'Test',
 				currentHP: 10,
-				maxHP: 10,
-				tile: floor.board[floor.y][floor.x]
+				maxHP: 10, 
+				weapon: null,
+				tile: null,
 			},
+			inventory: [],
+			isRunning: true,
 			turn: true,
 			floor: 1,
-			board: floor.board,
-			enemies: floor.enemies,
+			board: null,
+			enemies: null,
 			log: []
 		}
-
+		
+		let floor = this.createFloor(1);
+		
+		this.state.player.tile = floor.board[floor.y][floor.x];
+		this.state.board = floor.board;
+		this.state.enemies = floor.enemies;
+		
 		this.controls = this.controls.bind(this);
 		this.attemptMove = this.attemptMove.bind(this);
 		this.createFloor = this.createFloor.bind(this);
 		this.nextFloor = this.nextFloor.bind(this);
 		this.updateLog = this.updateLog.bind(this);
 		this.monsterMove = this.monsterMove.bind(this);
+		this.playerLoseLife = this.playerLoseLife.bind(this);
 	}
 
 	createFloor(floor) {
@@ -83,7 +91,6 @@ class Game extends React.Component {
 
 		board[stairY][stairX].floor = 'stairs';
 
-
 		// places the player
 		let playerX = random(0, xA - 1);
 		let playerY = random(0, yA - 1);
@@ -93,7 +100,7 @@ class Game extends React.Component {
 			playerY = random(0, yA - 1);
 		}
 
-		board[playerY][playerX].unit = 'player';
+		board[playerY][playerX].unit = this.state.player;
 
 		// places random enemies
 		let enemies = [];
@@ -106,15 +113,21 @@ class Game extends React.Component {
 				unitX = random(0, xA - 1);
 				unitY = random(0, yA - 1);
 			}
-			
-			enemies.push({
+
+			let unit = {
 				name: 'Orc',
 				currentHP: 5,
 				maxHP: 5,
+				damage: {
+					min: 1,
+					max: 3,
+				},
 				tile: board[unitY][unitX]
-			})
+			}
 
-			board[unitY][unitX].unit = 'orc';
+			enemies.push(unit)
+
+			board[unitY][unitX].unit = unit;
 		}
 
 		return {
@@ -183,7 +196,7 @@ class Game extends React.Component {
 	}
 
 	attemptMove(y, x) {
-		if (!this.state.turn) {
+		if (!this.state.turn || !this.state.isRunning) {
 			return false;
 		}
 
@@ -193,50 +206,64 @@ class Game extends React.Component {
 
 		const targetTile = this.state.board[y][x];
 
-		if (targetTile.unit) {
+		if (targetTile.unit === 'wall') {
 			return false;
+		} else if (!targetTile.unit) {
+			this.state.player.tile.unit = null;
+			targetTile.unit = this.state.player;
+			this.state.player.tile = targetTile;	
+		} else {
+
+			// needs a reference to unit in tile
 		}
 
-		this.state.player.tile.unit = null;
-		targetTile.unit = "player";
-		this.state.player.tile = targetTile;
-
 		this.state.turn = false;
-
 		this.monsterMove();
-		return true;
 	}
 
 	monsterMove() {
-		
+
 		const path = new ROT.Path.AStar(this.state.player.tile.x, this.state.player.tile.y, (x, y) => {
 			return this.state.board[y][x].unit !== 'wall';
 		});
 
 		for (let i in this.state.enemies) {
 			let unit = this.state.enemies[i];
-			
+
 			const pathToPlayer = [];
-			
+
 			path.compute(unit.tile.x, unit.tile.y, (x, y) => {
 				pathToPlayer.push(this.state.board[y][x]);
 			});
-			
-			if (pathToPlayer[1].unit === 'player') {
+
+			if (pathToPlayer[1].unit && pathToPlayer[1].unit.name === 'Test') {
 				// monster attack player
-				this.updateLog('Monster attacks you!', 'red');
+				let damage = random(unit.damage.min, unit.damage.max);
+				this.updateLog(`The ${unit.name.toLowerCase()} hits you for ${damage} damage!`, 'red');
+				this.playerLoseLife(damage);
 			} else if (!pathToPlayer[1].unit) {
 				// move
 				let targetTile = pathToPlayer[1];
 				unit.tile.unit = null;
-				targetTile.unit = unit.name.toLowerCase();
+				targetTile.unit = unit;
 				unit.tile = targetTile;
 			}
 		}
 
 		setTimeout(() => {
-			this.setState({turn: true});
+			this.setState({ turn: true });
 		}, 1);
+	}
+
+	playerLoseLife(damage) {
+		if (this.state.player.currentHP - damage <= 0) {
+			this.state.isRunning = false;
+			this.state.player.currentHP = 0;
+			this.updateLog('You died...', 'grey');
+			// player dies
+		} else {
+			this.state.player.currentHP -= damage;
+		}
 	}
 
 	updateLog(text, color = "") {
@@ -270,11 +297,12 @@ class Game extends React.Component {
 
 				if (tile.unit === "wall") {
 					tileClass = "";
-				} else if (tile.unit === "player") {
-					unit = <span className="player"></span>
-				} else if (tile.unit == "orc") {
-					unit = <span className="orc"></span>
-
+				} else if (tile.unit) {
+					if (tile.unit.name === 'Test') {
+						unit = <span className="player"></span>
+					} else if (tile.unit.name === 'Orc') {
+						unit = <span className="orc"></span>
+					}
 				}
 
 				if (tile.floor === "stairs") {
