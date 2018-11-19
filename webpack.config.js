@@ -5,10 +5,14 @@ module.exports = {
 	mode: 'development',
 	entry: [
 		'webpack-hot-middleware/client',
-		'./src/index.jsx'
+		'./src/index.tsx'
 	],
 	module: {
 		rules: [
+			{
+				test: /\.tsx?$/, 
+				loader: "awesome-typescript-loader" 
+			},
 			{
 				test: /\.(js|jsx)$/,
 				exclude: /node_modules/,
@@ -33,7 +37,7 @@ module.exports = {
 		]
 	},
 	resolve: {
-		extensions: ['*', '.js', '.jsx'],
+		extensions: ['*', '.js', '.jsx', '.ts', '.tsx'],
 	},
 	output: {
 		path: `${__dirname}/dist`,
@@ -43,8 +47,13 @@ module.exports = {
 	plugins: [
 		new webpack.HotModuleReplacementPlugin()
 	],
+	devtool: 'source-map',
 	devServer: {
 		contentBase: './client',
 		hot: true
-	}
+	},
+	// externals: {
+	// 	"react": "React",
+	// 	"react-dom": "ReactDOM"
+	// }
 };

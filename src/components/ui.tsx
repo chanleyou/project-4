@@ -1,6 +1,21 @@
-import React from 'react';
+import * as React from 'react';
 
 import "./ui.scss";
+
+interface LogItem {
+	text: string,
+	color: string,
+}
+
+interface Props {
+	player: {
+		name: string,
+		currentHP: number,
+		maxHP: number,
+	}
+
+	log: LogItem[];
+}
 
 class Controls extends React.Component {
 
@@ -9,27 +24,15 @@ class Controls extends React.Component {
 	}
 }
 
-class Log extends React.Component {
-
-	render() {
-
-		const items = this.props.log.map((item, index) => {
-			return <p key={index + item.text} className={item.color}>{item.text}</p>
-		})
-
-		return (
-			<div className="log">
-				{items}
-			</div>
-		)
-	}
-}
-
-export default class UI extends React.Component {
+export class UI extends React.Component<Props, object> {
 
 	render() {
 
 		const player = this.props.player;
+
+		const log = this.props.log.map((item, index) => {
+			return <p key={index + item.text} className={item.color}>{item.text}</p>
+		})
 
 		return (
 			<div className="ui">
@@ -44,9 +47,11 @@ export default class UI extends React.Component {
 						</div>
 					</div>
 				</div>
-				<Log log={this.props.log} />
+				<div className="log">
+					{log}
+				</div>
 				<Controls />
 			</div>
 		)
-	}
+	}	
 }
