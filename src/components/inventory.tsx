@@ -21,8 +21,13 @@ export class Inventory extends React.Component<Props, object> {
 		const inventory = this.props.inventory.map((item: Item, index) => {
 			return (
 				<div key={index + item.name} className="item">
-					<p><img src={'../sprites/'+ item.icon + '.png'} />{item.name} - {item.description}<button onClick={() => 
-					item.effect()} >Use</button></p>
+					<img src={'../sprites/'+ item.icon + '.png'} />
+					<div>
+						<h5>{item.name}</h5>
+						<p>{item.description}</p>
+					</div>
+					<button onClick={() => 
+					item.effect()} >Use</button>
 				</div>
 			)
 		})

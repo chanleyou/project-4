@@ -26,6 +26,9 @@ $dark-grey: #212121;
 		border: 1px solid grey;
 		box-sizing: border-box;
 		padding: 5px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 
 		img {
 			background-color: black;
@@ -35,6 +38,27 @@ $dark-grey: #212121;
 			width: 32px;
 		}
 
+		div {
+			margin: 0 0.5rem;
+			text-align: left;
+			flex-grow: 2;
 
+			p {
+				font-size: 0.75rem;
+			}
+		}
+
+		button {
+			padding: 0.25rem;
+			border: 1px solid white;
+			background-color: black;
+			font-family: inherit;
+			color: inherit;
+			box-sizing: border-box;outline: none;
+		}
+		
+		button:active {
+			background-color: $dark-grey;
+		}
 	}
 }
