@@ -4,6 +4,7 @@ const ROT = require('rot-js');
 
 import './style.scss'; // global stylesheet
 import { UI } from './components/ui';
+import { Inventory } from './components/inventory';
 
 const random = (min: number, max: number) => {
 	return min + Math.floor(Math.random() * (max - min + 1));
@@ -64,15 +65,28 @@ interface LogItem {
 	color: string;
 }
 
+interface Item {
+	name: string;
+	description: string;
+}
+
+enum GameState {
+	IsRunning,
+	Paused,
+	Inventory,
+	Dead 
+}
+
 interface MyState {
 	player: Player,
 	board: Tile[][],
 	floor: number,
-	isRunning: boolean,
+	gameState: GameState,
 	playerTurn: boolean,
 	turn: number,
 	enemies: Enemy[],
-	log: LogItem[]
+	log: LogItem[],
+	inventory: Item[],
 }
 
 
@@ -92,6 +106,7 @@ class Game extends React.Component<any, MyState> {
 		this.wait = this.wait.bind(this);
 		this.endTurn = this.endTurn.bind(this);
 		this.calculateFOV = this.calculateFOV.bind(this);
+		this.toggleInventory = this.toggleInventory.bind(this);
 
 		let floor = this.createFloor(1);
 		let player = new Player('Test', 15, floor.board[floor.y][floor.x]);
@@ -102,11 +117,15 @@ class Game extends React.Component<any, MyState> {
 			player: player,
 			board: floor.board,
 			floor: 1,
-			isRunning: true,
+			gameState: GameState.IsRunning,
 			playerTurn: true,
 			turn: 1,
 			enemies: floor.enemies,
-			log: []
+			log: [],
+			inventory: [{
+				name: 'Test Item',
+				description: 'test description.'
+			}]
 		}
 	}
 
@@ -207,6 +226,9 @@ class Game extends React.Component<any, MyState> {
 			case 99: // numpad 3
 				this.playerMove(y + 1, x + 1);
 				break;
+			case 73: // i
+				this.toggleInventory();
+				break;
 			case 190: // >
 				if (this.state.player.tile.ground === 'stairs') {
 					this.nextFloor();
@@ -220,8 +242,12 @@ class Game extends React.Component<any, MyState> {
 	}
 
 	wait() {
-		this.updateLog('You wait.');
-		this.endTurn();
+		if (this.state.gameState !== GameState.IsRunning) {
+			return false;
+		} else {
+			this.updateLog('You wait.');
+			this.endTurn();
+		}
 	}
 
 	playerGainLife(heal: number) {
@@ -248,7 +274,7 @@ class Game extends React.Component<any, MyState> {
 	}
 
 	playerMove(y: number, x: number) {
-		if (!this.state.turn || !this.state.isRunning) {
+		if (!this.state.turn || this.state.gameState !== GameState.IsRunning) {
 			return false;
 		}
 
@@ -327,7 +353,7 @@ class Game extends React.Component<any, MyState> {
 
 			this.state.player.currentHP = 0;
 			this.setState({
-				isRunning: false
+				gameState: GameState.Dead
 			})
 			this.updateLog('You died...', 'grey');
 			// player dies
@@ -382,6 +408,18 @@ class Game extends React.Component<any, MyState> {
 				this.state.board[y][x].visible = true;
 			}
 		})
+	}
+
+	toggleInventory() {
+		if (this.state.gameState === GameState.IsRunning) {
+			this.setState({
+				gameState: GameState.Inventory
+			})
+		} else if (this.state.gameState === GameState.Inventory) {
+			this.setState({
+				gameState: GameState.IsRunning
+			})
+		}
 	}
 
 	render() {
@@ -439,12 +477,19 @@ class Game extends React.Component<any, MyState> {
 			)
 		})
 
+		let inventory = null;
+
+		if (this.state.gameState === GameState.Inventory) {
+			inventory = <Inventory inventory={this.state.inventory} />
+		}
+
 		return (
 			<div className="root">
 				<div className="board">
+					{inventory}
 					{board}
 				</div>`
-				<UI player={this.state.player} log={this.state.log} />
+				<UI player={this.state.player} log={this.state.log} toggleInventory = {this.toggleInventory} />
 			</div>
 		)
 	}

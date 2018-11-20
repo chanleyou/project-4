@@ -22,6 +22,7 @@ $dark-grey: #212121;
 .board {
 	background-color: black;
 	display: flex;
+	position: relative;
 	flex-direction: column;
 	text-align: center;
 	height: 100%;

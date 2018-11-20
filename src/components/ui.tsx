@@ -12,19 +12,31 @@ interface Props {
 		name: string,
 		currentHP: number,
 		maxHP: number,
-	}
-
+	};
 	log: LogItem[];
+	toggleInventory: Function;
 }
 
-class Controls extends React.Component {
-
+class Buttons extends React.Component<any, any> {
+	constructor(Props: any) {
+		super(Props)
+	}
+	
 	render() {
-		return <button>Controls</button>
+		return (
+			<div>
+				<button onClick={this.props.toggleInventory}><span className="highlight">[I]</span> Inventory</button>
+				<button><span className="highlight">[?]</span> Controls</button>			
+			</div>
+		) 
 	}
 }
 
 export class UI extends React.Component<Props, object> {
+	constructor(Props: Props) {
+		super (Props)
+
+	}
 
 	render() {
 
@@ -50,7 +62,7 @@ export class UI extends React.Component<Props, object> {
 				<div className="log">
 					{log}
 				</div>
-				<Controls />
+				<Buttons toggleInventory={this.props.toggleInventory} />
 			</div>
 		)
 	}	

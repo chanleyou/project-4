@@ -16,7 +16,7 @@ $light-red: #ef9a9a;
 	.info, .log {
 		padding: 12px 8px;
 		border: 1px solid grey;
-		margin-bottom: 0.5rem;
+		margin: 0.25rem 0;
 	}
 
 	.log {
@@ -26,7 +26,7 @@ $light-red: #ef9a9a;
 	}
 
 	h5, p, .health-line {
-		margin-bottom: 0.25rem;
+		margin: 0.25rem 0;
 	}
 
 	h5 {
@@ -67,7 +67,7 @@ button {
 	color: inherit;
 	box-sizing: border-box;
 	width: 100%;
-	margin: 0;
+	margin: 0.25rem 0;
 	font-family: inherit;
 	outline: none;
 }
@@ -82,4 +82,8 @@ button:active {
 
 .grey {
 	color: grey;
+}
+
+.highlight {
+	color: yellow;
 }
