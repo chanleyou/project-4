@@ -326,7 +326,7 @@ class Game extends React.Component<any, MyState> {
 		this.updateLog(`You hit the ${unit.name.toLowerCase()} for ${damage} damage!`);
 		if (unit.currentHP <= 0) {
 			this.state.enemies.splice(this.state.enemies.indexOf(unit), 1);
-			this.updateLog(`You slay the ${unit.name.toLowerCase()}!`);
+			this.updateLog(`You slay the ${unit.name.toLowerCase()}!`, 'amber');
 			unit.tile.unit = null;
 		}
 

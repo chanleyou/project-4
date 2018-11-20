@@ -1,5 +1,11 @@
 $dark-grey: #212121;
 $light-red: #ef9a9a;
+$light-green: #a5d6a7;
+$light-amber: #ffe082;
+
+$header: 'Ovo', sans-serif;
+$monospace: 'Inconsolata', 'Consolas', 'Menlo', monospace;
+
 
 .ui {
 	width: 20%;
@@ -86,9 +92,9 @@ $light-red: #ef9a9a;
 }
 
 .green {
-	color: green;
+	color: $light-green;
 }
 
-.highlight {
-	color: yellow;
+.amber {
+	color: $light-amber;
 }

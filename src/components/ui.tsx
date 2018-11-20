@@ -25,8 +25,8 @@ class Buttons extends React.Component<any, any> {
 	render() {
 		return (
 			<div>
-				<button onClick={this.props.toggleInventory}><span className="highlight">[I]</span> Inventory</button>
-				<button><span className="highlight">[?]</span> Controls</button>			
+				<button onClick={this.props.toggleInventory}><span className="amber">[I]</span> Inventory</button>
+				<button><span className="amber">[?]</span> Controls</button>			
 			</div>
 		) 
 	}
