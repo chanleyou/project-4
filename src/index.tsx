@@ -15,6 +15,7 @@ interface Unit {
 	maxHP: number;
 	tile: Tile;
 	damage: Damage;
+	isPlayer: boolean;
 }
 
 interface Damage {
@@ -22,36 +23,39 @@ interface Damage {
 	max: number
 }
 
-class Player implements Unit {
+class Player implements Unit { // do I need a separate class for player?
 	currentHP: number;
 	damage: Damage;
+	isPlayer: boolean;
 
 	constructor(public name: string, public maxHP: number = 15, public tile: Tile) {
 		this.currentHP = maxHP;
+		this.isPlayer = true;
 	}
 }
 
 class Enemy implements Unit {
 	currentHP: number;
+	isPlayer: boolean;
 
 	constructor(public name: string, public maxHP: number, public tile: Tile, public damage: Damage) {
 		this.currentHP = maxHP;
 		this.tile.unit = this; // places the unit on its tile upon creation
+		this.isPlayer = false;
 	}
 }
 
 class Tile {
-	[key: string]: string | Unit | boolean | number;
-	public unit: Unit;
+	unit: Unit;
 	ground: string;
 	visible: boolean;
 	explored: boolean;
 
-	constructor(public x: number, public y: number, public wall: boolean = false) {
+	constructor(readonly x: number, readonly y: number, readonly wall: boolean = false) {
 		this.unit = null;
 		this.ground = null;
 		this.visible = false;
-		this.explored = false
+		this.explored = false;
 	}
 }
 
@@ -72,7 +76,7 @@ interface MyState {
 }
 
 
-class Game extends React.Component<any, MyState> { // redefine State as interface later
+class Game extends React.Component<any, MyState> {
 	constructor(props: any) {
 		super(props)
 
@@ -87,6 +91,7 @@ class Game extends React.Component<any, MyState> { // redefine State as interfac
 		this.playerGainLife = this.playerGainLife.bind(this);
 		this.wait = this.wait.bind(this);
 		this.endTurn = this.endTurn.bind(this);
+		this.calculateFOV = this.calculateFOV.bind(this);
 
 		let floor = this.createFloor(1);
 		let player = new Player('Test', 15, floor.board[floor.y][floor.x]);
@@ -116,7 +121,7 @@ class Game extends React.Component<any, MyState> { // redefine State as interfac
 		for (let i = 0; i < rows; i++) {
 			let row: Tile[] = [];
 			board.push(row);
-		} 
+		}
 
 		map.create(function (x: number, y: number, value: number) {
 			if (value) {
@@ -156,7 +161,7 @@ class Game extends React.Component<any, MyState> { // redefine State as interfac
 			}
 
 			// to be replaced with random enemy generation
-			let unit = new Enemy('Orc', 5, board[unitY][unitX], {min: 1, max: 3});
+			let unit = new Enemy('Orc', 5, board[unitY][unitX], { min: 1, max: 3 });
 			enemies.push(unit);
 		}
 
@@ -266,7 +271,7 @@ class Game extends React.Component<any, MyState> { // redefine State as interfac
 		this.endTurn();
 	}
 
-	playerAttack(unit: Unit) {
+	playerAttack(unit: Enemy) {
 		let damage = random(2, 4); // to be rewritten when items are introduced
 		unit.currentHP -= damage;
 		this.updateLog(`You hit the ${unit.name.toLowerCase()} for ${damage} damage!`);
@@ -342,7 +347,7 @@ class Game extends React.Component<any, MyState> { // redefine State as interfac
 		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight; // this is not working as well it should
 	}
 
-	endTurn () {
+	endTurn() {
 		this.setState({
 			playerTurn: false,
 			turn: this.state.turn + 1
@@ -354,37 +359,71 @@ class Game extends React.Component<any, MyState> { // redefine State as interfac
 		window.addEventListener('keydown', this.controls);
 	}
 
+	calculateFOV() {
 
+		for (let i in this.state.board) {
+			for (let y in this.state.board[i]) {
+				this.state.board[i][y].visible = false;
+			}
+		}
+
+		const fov = new ROT.FOV.PreciseShadowcasting((x: number, y: number) => {
+			console.log('TILE:', this.state.board);
+			if (y < 0 || x < 0 || y >= 20 || x >= 34) {
+				return false;
+			} else {
+				return !this.state.board[y][x].wall;
+			}
+		});
+
+		fov.compute(this.state.player.tile.x, this.state.player.tile.y, 8, (x: number, y: number, r: number, visibility: Function) => {
+			if (this.state.board[y][x]) {
+				this.state.board[y][x].explored = true;
+				this.state.board[y][x].visible = true;
+			}
+		})
+	}
 
 	render() {
 
+		this.calculateFOV();
+
+		// LOGGING
 		console.log(`T${this.state.turn}:`, this.state);
 
+		// board generation
 		const board = this.state.board.map((row, rowIndex) => {
 
 			const rows = row.map((tile, colIndex) => {
 
 				let tileClass: string = 'tile';
 				let unit = null;
-				
-				if (tile.ground === "stairs") {
-					tileClass = "stairs";
-				}
 
-				if (tile.wall) {
-					tileClass = 'null';
+				// rewrite this logic tree later
+				if (!tile.explored) {
+					tileClass = '';
+				} else if (tile.wall) {
+					tileClass = 'wall';
+				} else if (!tile.visible) {
+					unit = <span className="fog"></span>
 				} else if (tile.unit) {
-					console.log(tile.unit.name);
 
-					switch (tile.unit.name) {
-						case this.state.player.name:
-							unit = <span className="player"></span>
-							break;
-						case 'Orc':
-							unit = <span className="orc"></span>
-							break;
+					if (tile.unit.isPlayer) {
+						unit = <span className="player"></span>
+					} else {
+
+						switch (tile.unit.name) {
+							case 'Orc':
+								unit = <span className="orc"></span>
+								break;
+
 						}
 					}
+				}
+
+				if (tile.explored && tile.ground === 'stairs') {
+					tileClass = 'stairs';
+				}
 
 				return (
 					<div className={tileClass} key={colIndex}>

@@ -6,7 +6,8 @@ Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). T
 
 - [x] Pathfinding 
 - [x] Combat
-- [ ] FOV
+- [x] FOV
+- [ ] Skills
 - [ ] Mouse Controls
 - [ ] Help Page
 - [ ] Floating Health Bars
@@ -18,4 +19,4 @@ Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). T
 
 ### Issues
 
-- Monsters don't consider non-optimal routes so they don't automatically fill empty spaces (switch to Dijkstra instead of AStar pathing algorithm?).
+- Monsters don't consider non-optimal routes so they block each other even when there's space. Rework using Dijkstra instead of AStar?
