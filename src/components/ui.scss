@@ -59,21 +59,22 @@ $light-red: #ef9a9a;
 			}
 		}
 	}
-}
 
-button {
-	border: 1px solid white;
-	background-color: black;
-	color: inherit;
-	box-sizing: border-box;
-	width: 100%;
-	margin: 0.25rem 0;
-	font-family: inherit;
-	outline: none;
-}
-
-button:active {
-	background-color: $dark-grey;
+	button {
+		padding: 0.25rem;
+		border: 1px solid white;
+		background-color: black;
+		color: inherit;
+		box-sizing: border-box;
+		width: 100%;
+		margin: 0.25rem 0;
+		font-family: inherit;
+		outline: none;
+	}
+	
+	button:active {
+		background-color: $dark-grey;
+	}
 }
 
 .red {
@@ -82,6 +83,10 @@ button:active {
 
 .grey {
 	color: grey;
+}
+
+.green {
+	color: green;
 }
 
 .highlight {

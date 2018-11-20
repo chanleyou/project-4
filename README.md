@@ -11,7 +11,8 @@ Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). T
 - [ ] Mouse Controls
 - [ ] Help Page
 - [ ] Floating Health Bars
-- [ ] Inventory & Items
+- [x] Inventory & Items (kind of)
+- [ ] Variety
 - [ ] Shops
 - [ ] Animations
 - [ ] Menu
@@ -20,3 +21,4 @@ Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). T
 ### Issues
 
 - Monsters don't consider non-optimal routes so they block each other even when there's space. Rework using Dijkstra instead of AStar?
+- Rewrite actions so they take a callback (the action itself), then execute endTurn -> monsterMove directly? 

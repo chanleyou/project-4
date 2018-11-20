@@ -15,9 +15,26 @@ $dark-grey: #212121;
 	box-sizing: border-box;
 	color: white;
 
-	h4 {
+	h1 {
 		text-align: center;
 		font-size: 1.5rem;
 		margin: 1rem 0;
+	}
+
+	.item {
+		width: 100%;
+		border: 1px solid grey;
+		box-sizing: border-box;
+		padding: 5px;
+
+		img {
+			background-color: black;
+			display: inline-block;
+			border: 1px solid grey;
+			height: 32px;
+			width: 32px;
+		}
+
+
 	}
 }

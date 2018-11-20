@@ -24,7 +24,7 @@ interface Damage {
 	max: number
 }
 
-class Player implements Unit { // do I need a separate class for player?
+class Player implements Unit {
 	currentHP: number;
 	damage: Damage;
 	isPlayer: boolean;
@@ -65,16 +65,41 @@ interface LogItem {
 	color: string;
 }
 
-interface Item {
+abstract class Item {
+	game: Game;
+	icon: string;
 	name: string;
 	description: string;
+	effect: Function;
+
+	constructor(game: Game) {
+		this.game = game;
+	}
+}
+
+class HealPotion extends Item {
+	game: Game;
+	icon = "flask_big_green";
+	name = 'Healing Potion';
+	description = "Heals you for 5-8 life.";
+	effect = function () {
+		let heal = random(5, 8);
+		this.game.playerGainLife(heal);
+		this.game.updateLog(`The healing potion restores ${heal} hp.`, 'green');
+		this.game.endTurn();
+		this.game.useItem(this.game.state.inventory.indexOf(this));
+	}
+
+	constructor(game: Game) {
+		super (game);
+	}
 }
 
 enum GameState {
 	IsRunning,
 	Paused,
 	Inventory,
-	Dead 
+	Dead
 }
 
 interface MyState {
@@ -107,6 +132,7 @@ class Game extends React.Component<any, MyState> {
 		this.endTurn = this.endTurn.bind(this);
 		this.calculateFOV = this.calculateFOV.bind(this);
 		this.toggleInventory = this.toggleInventory.bind(this);
+		this.useItem = this.useItem.bind(this);
 
 		let floor = this.createFloor(1);
 		let player = new Player('Test', 15, floor.board[floor.y][floor.x]);
@@ -122,10 +148,7 @@ class Game extends React.Component<any, MyState> {
 			turn: 1,
 			enemies: floor.enemies,
 			log: [],
-			inventory: [{
-				name: 'Test Item',
-				description: 'test description.'
-			}]
+			inventory: [new HealPotion(this)]
 		}
 	}
 
@@ -371,6 +394,10 @@ class Game extends React.Component<any, MyState> {
 		}
 
 		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight; // this is not working as well it should
+
+		this.setState({
+			log: this.state.log
+		})
 	}
 
 	endTurn() {
@@ -394,7 +421,6 @@ class Game extends React.Component<any, MyState> {
 		}
 
 		const fov = new ROT.FOV.PreciseShadowcasting((x: number, y: number) => {
-			console.log('TILE:', this.state.board);
 			if (y < 0 || x < 0 || y >= 20 || x >= 34) {
 				return false;
 			} else {
@@ -420,6 +446,10 @@ class Game extends React.Component<any, MyState> {
 				gameState: GameState.IsRunning
 			})
 		}
+	}
+
+	useItem(index: number) {
+		this.state.inventory.splice(index, 1);
 	}
 
 	render() {
@@ -480,7 +510,7 @@ class Game extends React.Component<any, MyState> {
 		let inventory = null;
 
 		if (this.state.gameState === GameState.Inventory) {
-			inventory = <Inventory inventory={this.state.inventory} />
+			inventory = <Inventory useItem={this.useItem} inventory={this.state.inventory} />
 		}
 
 		return (
@@ -489,7 +519,7 @@ class Game extends React.Component<any, MyState> {
 					{inventory}
 					{board}
 				</div>`
-				<UI player={this.state.player} log={this.state.log} toggleInventory = {this.toggleInventory} />
+				<UI player={this.state.player} log={this.state.log} toggleInventory={this.toggleInventory} />
 			</div>
 		)
 	}
