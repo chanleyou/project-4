@@ -19,7 +19,6 @@ interface Unit {
 	maxHP: number;
 	tile: Tile;
 	damage: Damage;
-	isPlayer: boolean;
 }
 
 interface Damage {
@@ -31,12 +30,10 @@ class Player implements Unit {
 	currentHP: number;
 	maxHP: number;
 	damage: Damage;
-	isPlayer: boolean;
 
 	constructor(public name: string, public tile: Tile) {
 		this.maxHP = 15;
 		this.currentHP = 15;
-		this.isPlayer = true;
 	}
 }
 
@@ -45,7 +42,6 @@ class Princess implements Unit {
 	currentHP: number;
 	maxHP: number;
 	damage: Damage;
-	isPlayer: boolean;
 
 	constructor(public tile: Tile) {
 		this.name = "Princess";
@@ -56,12 +52,10 @@ class Princess implements Unit {
 
 class Enemy implements Unit {
 	currentHP: number;
-	isPlayer: boolean;
 
 	constructor(public name: string, public maxHP: number, public tile: Tile, public damage: Damage) {
 		this.currentHP = maxHP;
 		this.tile.unit = this; // places the unit on its tile upon creation
-		this.isPlayer = false;
 	}
 }
 
@@ -100,10 +94,11 @@ class HealPotion extends Item {
 	game: Game;
 	icon = "flask_big_green";
 	name = 'Healing Potion';
-	description = "Can be consumed to heal you for 5-8 life.";
+	description = "Use to heal you and the princess for 5-8 life.";
 	effect = function () {
 		let heal = random(5, 8);
-		this.game.playerGainLife(heal);
+		this.game.playerGainLife(this.game.state.player, heal);
+		this.game.playerGainLife(this.game.state.princess, heal);
 		this.game.updateLog(`The potion restores ${heal} life.`, 'green');
 		this.game.endTurn();
 		this.game.useItem(this.game.state.inventory.indexOf(this));
@@ -313,11 +308,11 @@ class Game extends React.Component<any, MyState> {
 		}
 	}
 
-	playerGainLife(heal: number) {
-		this.state.player.currentHP += heal;
+	playerGainLife(unit: Unit, heal: number) {
+		unit.currentHP += heal;
 
-		if (this.state.player.currentHP > this.state.player.maxHP) {
-			this.state.player.currentHP = this.state.player.maxHP;
+		if (unit.currentHP > unit.maxHP) {
+			unit.currentHP = unit.maxHP;
 		}
 	}
 
@@ -356,6 +351,12 @@ class Game extends React.Component<any, MyState> {
 			this.state.player.tile.unit = null;
 			targetTile.unit = this.state.player;
 			this.state.player.tile = targetTile;
+		} else if (targetTile.unit === this.state.princess) {
+			this.state.princess.tile = this.state.player.tile; 
+			this.state.player.tile.unit = this.state.princess;
+			targetTile.unit = this.state.player;
+			this.state.player.tile = targetTile;
+
 		} else {
 			this.playerAttack(targetTile.unit);
 		}
@@ -377,32 +378,56 @@ class Game extends React.Component<any, MyState> {
 
 	monsterMove() {
 
-		// player regens 1 hp every 3 rounds
-		if (this.state.turn % 3 === 0) {
-			this.playerGainLife(1);
+		// player and princess regens 1 hp every 4 rounds
+		if (this.state.turn % 4 === 0) {
+			this.playerGainLife(this.state.player, 1);
+			this.playerGainLife(this.state.princess, 1);
 		}
 
-		const path = new ROT.Path.AStar(this.state.player.tile.x, this.state.player.tile.y, (x: number, y: number) => {
+		// princess follows you
+		const pathToPlayer = new ROT.Path.AStar(this.state.player.tile.x, this.state.player.tile.y, (x: number, y: number) => {
+			return !this.state.board[y][x].wall;
+		});
+
+		const pathPlayer: Tile[] = [];
+
+		pathToPlayer.compute(this.state.princess.tile.x, this.state.princess.tile.y, (x: number, y: number) => {
+			pathPlayer.push(this.state.board[y][x]);
+		})
+
+		if (!pathPlayer[1].unit) {
+			this.state.princess.tile.unit = null;
+			this.state.princess.tile = pathPlayer[1];
+			pathPlayer[1].unit = this.state.princess;
+		}
+		
+		// enemies chase princess
+		const pathToPrincess = new ROT.Path.AStar(this.state.princess.tile.x, this.state.princess.tile.y, (x: number, y: number) => {
 			return !this.state.board[y][x].wall;
 		});
 
 		for (let i in this.state.enemies) {
 			let unit = this.state.enemies[i];
 
-			const pathToPlayer: Tile[] = [];
+			const path: Tile[] = [];
 
-			path.compute(unit.tile.x, unit.tile.y, (x: number, y: number) => {
-				pathToPlayer.push(this.state.board[y][x]);
+			pathToPrincess.compute(unit.tile.x, unit.tile.y, (x: number, y: number) => {
+				path.push(this.state.board[y][x]);
 			});
 
-			if (pathToPlayer[1].unit && pathToPlayer[1].unit.name === 'Test') {
+			if (path[1].unit && path[1].unit === this.state.player) {
 				// monster attack player
 				let damage = random(unit.damage.min, unit.damage.max);
 				this.updateLog(`The ${unit.name.toLowerCase()} hits you for ${damage} damage!`, 'red');
-				this.playerLoseLife(damage);
-			} else if (!pathToPlayer[1].unit) {
+				this.playerLoseLife(this.state.player, damage);
+			} else if (path[1].unit && path[1].unit === this.state.princess) {
+				// monster attack princess
+				let damage = random(unit.damage.min, unit.damage.max);
+				this.updateLog(`The ${unit.name.toLowerCase()} hits the princess for ${damage} damage!`, 'red');
+				this.playerLoseLife(this.state.princess, damage);
+			} else if	(!path[1].unit) {
 				// move
-				let targetTile = pathToPlayer[1];
+				let targetTile = path[1];
 				unit.tile.unit = null;
 				targetTile.unit = unit;
 				unit.tile = targetTile;
@@ -414,18 +439,21 @@ class Game extends React.Component<any, MyState> {
 		}, 1);
 	}
 
-	playerLoseLife(damage: number) {
-		if (this.state.player.currentHP - damage <= 0) {
+	playerLoseLife(unit: Unit, damage: number) {
 
-			this.state.player.currentHP = 0;
+		unit.currentHP -= damage;
+
+		if (unit.currentHP <= 0) {
+			if (unit === this.state.player) {
+
+				this.updateLog('You died...', 'grey');
+			} else if (unit === this.state.princess) {
+				this.updateLog('The princess died...', 'grey');
+			}
 			this.setState({
 				gameState: GameState.Dead
 			})
-			this.updateLog('You died...', 'grey');
-			// player dies
-		} else {
-			this.state.player.currentHP -= damage;
-		}
+		} 
 	}
 
 	updateLog(text: string, color: string = "") {
@@ -493,9 +521,9 @@ class Game extends React.Component<any, MyState> {
 
 	useItem(index: number) {
 		this.state.inventory.splice(index, 1);
-		this.setState({
-			gameState: GameState.IsRunning
-		})
+		// this.setState({
+		// 	gameState: GameState.IsRunning
+		// })
 	}
 
 	render() {
@@ -509,7 +537,7 @@ class Game extends React.Component<any, MyState> {
 			<div className="root">
 				<Inventory gameState={this.state.gameState} useItem={this.useItem} inventory={this.state.inventory} />
 				<Board board={this.state.board} />
-				<UI player={this.state.player} log={this.state.log} toggleInventory={this.toggleInventory} />
+				<UI player={this.state.player} princess={this.state.princess} log={this.state.log} toggleInventory={this.toggleInventory} />
 			</div>
 		)
 	}

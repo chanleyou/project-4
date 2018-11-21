@@ -3,14 +3,19 @@ import * as React from 'react';
 import "./ui.scss";
 
 interface LogItem {
-	text: string,
-	color: string,
+	text: string;
+	color: string;
 }
 
 interface Props {
 	player: {
-		name: string,
-		currentHP: number,
+		name: string;
+		currentHP: number;
+		maxHP: number;
+	};
+	princess: {
+		name: string;
+		currentHP: number;
 		maxHP: number;
 	};
 	log: LogItem[];
@@ -35,12 +40,12 @@ class Buttons extends React.Component<any, any> {
 export class UI extends React.Component<Props, object> {
 	constructor(Props: Props) {
 		super (Props)
-
 	}
 
 	render() {
 
 		const player = this.props.player;
+		const princess = this.props.princess;
 
 		const log = this.props.log.map((item, index) => {
 			return <p key={index + item.text} className={item.color}>{item.text}</p>
@@ -56,6 +61,16 @@ export class UI extends React.Component<Props, object> {
 						<div className="health-bar">
 							<span className="health-span">{player.currentHP} / {player.maxHP}</span>
 							<div className="health" style={{ width: (player.currentHP / player.maxHP * 100) + '%' }}></div>
+						</div>
+					</div>
+				</div>
+				<div className="info">
+					<h5>{princess.name}</h5>
+					<div className="health-line">
+						<span>Life:</span>
+						<div className="health-bar">
+							<span className="health-span">{princess.currentHP} / {princess.maxHP}</span>
+							<div className="health" style={{ width: (princess.currentHP / princess.maxHP * 100) + '%' }}></div>
 						</div>
 					</div>
 				</div>

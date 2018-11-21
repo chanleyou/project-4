@@ -55,8 +55,8 @@ $dark-grey: #212121;
 			z-index: 0;
 			background-size: cover;
 			position: relative;
-			box-sizing: border-box;
-			border: 1px solid $dark-grey;
+			// box-sizing: border-box;
+			// border: 1px solid $dark-grey;
 
 			.player {
 				display: inline-block;

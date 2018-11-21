@@ -7,11 +7,12 @@ Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). T
 - [x] Pathfinding 
 - [x] Combat
 - [x] FOV
+- [x] Princess
+- [x] Inventory System
 - [ ] Skills
 - [ ] Mouse Controls
 - [ ] Help Page
 - [ ] Floating Health Bars
-- [x] Inventory System
 - [ ] Variety
 - [ ] Shops
 - [ ] Animations
@@ -21,5 +22,4 @@ Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). T
 ## Issues
 
 - Monsters don't consider non-optimal routes. Rework using Dijkstra instead of AStar?
-- Rewrite actions so they take a callback (the action itself), then execute endTurn -> monsterMove directly? 
 

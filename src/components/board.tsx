@@ -7,7 +7,6 @@ interface Unit {
 	currentHP: number;
 	maxHP: number;
 	tile: Tile;
-	isPlayer: boolean;
 }
 
 interface Tile {
@@ -43,7 +42,7 @@ export class Board extends React.Component<Props, object> {
 					unit = <span className="fog" />
 				} else if (tile.unit) {
 
-					if (tile.unit.isPlayer) {
+					if (tile.unit.name === "Test") {
 						unit = <span className="player" />
 					} else {
 
