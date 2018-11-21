@@ -480,6 +480,27 @@ class Game extends React.Component<any, MyState> {
 				unit.tile.unit = null;
 				targetTile.unit = unit;
 				unit.tile = targetTile;
+
+				if (targetTile.ground === 'spikes') {
+					let damage = random(1, 3);
+					unit.currentHP -= damage;
+
+					// is this being calculated before FOV in render???
+					// I really need to write an individual unitloselife function
+					if (targetTile.visible) {
+						this.updateLog(`The spikes hurt the ${unit.name.toLowerCase()} for ${damage} damage!`);
+					}
+
+					if (unit.currentHP <= 0) {
+						this.state.enemies.splice(this.state.enemies.indexOf(unit), 1);
+						unit.tile.unit = null;
+						if (targetTile.visible) {
+							this.updateLog(`The ${unit.name.toLowerCase()} dies to the spikes!`, 'amber');
+						}
+					}
+
+
+				}
 			}
 		}
 
@@ -531,7 +552,7 @@ class Game extends React.Component<any, MyState> {
 	}
 
 	componentDidUpdate() {
-		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight; 
+		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight;
 	}
 
 	calculateFOV() {
