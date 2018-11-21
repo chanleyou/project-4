@@ -40,12 +40,16 @@ $dark-grey: #212121;
 			background-image: url(./sprites/floor_1.png);
 		}
 
-		.wall {
-			// background-color: $dark-grey;
-		}
+		// .wall {
+		// background-color: $dark-grey;
+		// }
 
 		.stairs {
 			background-image: url(./sprites/floor_ladder.png);
+		}
+
+		.spikes {
+			background-image: url(./sprites/floor_spikes_anim_f3.png);
 		}
 
 		div {
@@ -70,6 +74,7 @@ $dark-grey: #212121;
 				background-size: contain;
 				background-repeat: no-repeat;
 				background-position: center;
+				animation: player 0.5s infinite;
 			}
 
 			.princess {
@@ -84,6 +89,7 @@ $dark-grey: #212121;
 				background-size: contain;
 				background-repeat: no-repeat;
 				background-position: center;
+				animation: princess 0.5s infinite;
 			}
 
 			.orc {
@@ -93,11 +99,27 @@ $dark-grey: #212121;
 				left: -5%;
 				height: 100%;
 				width: 100%;
-				background-image: url(./sprites/orc_warrior_idle_anim_f0.jpg);
+				background-image: url(./sprites/orc_warrior_idle_anim_f0.png);
 				z-index: 5;
 				background-size: contain;
 				background-repeat: no-repeat;
 				background-position: center;
+				animation: orc 0.5s infinite;
+			}
+
+			.goblin {
+				display: inline-block;
+				position: absolute;
+				bottom: 10%;
+				left: -5%;
+				height: 100%;
+				width: 100%;
+				background-image: url(./sprites/goblin_idle_anim_f0.png);
+				z-index: 5;
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-position: center;
+				animation: goblin 0.5s infinite;
 			}
 
 			.fog {
@@ -109,4 +131,32 @@ $dark-grey: #212121;
 			}
 		}
 	}	
+}
+
+@keyframes player {
+	0% {background-image: url(./sprites/knight_f_idle_anim_f0.png);}
+	33% {background-image: url(./sprites/knight_f_idle_anim_f1.png);}
+	67% {background-image: url(./sprites/knight_f_idle_anim_f2.png);}
+	100% {background-image: url(./sprites/knight_f_idle_anim_f3.png);}
+}
+
+@keyframes princess {
+	0% {background-image: url(./sprites/elf_f_idle_anim_f0.png);}
+	33% {background-image: url(./sprites/elf_f_idle_anim_f1.png);}
+	67% {background-image: url(./sprites/elf_f_idle_anim_f2.png);}
+	100% {background-image: url(./sprites/elf_f_idle_anim_f3.png);}
+}
+
+@keyframes orc {
+	0% {background-image: url(./sprites/orc_warrior_idle_anim_f0.png);}
+	33% {background-image: url(./sprites/orc_warrior_idle_anim_f1.png);}
+	67% {background-image: url(./sprites/orc_warrior_idle_anim_f2.png);}
+	100% {background-image: url(./sprites/orc_warrior_idle_anim_f3.png);}
+}
+
+@keyframes goblin {
+	0% {background-image: url(./sprites/goblin_idle_anim_f0.png);}
+	33% {background-image: url(./sprites/goblin_idle_anim_f1.png);}
+	67% {background-image: url(./sprites/goblin_idle_anim_f2.png);}
+	100% {background-image: url(./sprites/goblin_idle_anim_f3.png);}
 }

@@ -53,13 +53,17 @@ export class Board extends React.Component<Props, object> {
 							case 'Orc':
 								unit = <span className="orc" />
 								break;
-
+							case 'Goblin':
+								unit = <span className="goblin" />
+								break;
 						}
 					}
 				}
 
 				if (tile.explored && tile.ground === 'stairs') {
 					tileClass = 'stairs';
+				} else if (tile.explored && tile.ground === 'spikes') {
+					tileClass = 'spikes';
 				}
 
 				return (

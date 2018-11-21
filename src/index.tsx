@@ -32,8 +32,8 @@ class Player implements Unit {
 	damage: Damage;
 
 	constructor(public name: string, public tile: Tile) {
-		this.maxHP = 15;
-		this.currentHP = 15;
+		this.maxHP = 12;
+		this.currentHP = 12;
 	}
 }
 
@@ -45,8 +45,8 @@ class Princess implements Unit {
 
 	constructor(public tile: Tile) {
 		this.name = "Princess";
-		this.maxHP = 10;
-		this.currentHP = 10;
+		this.maxHP = 8;
+		this.currentHP = 8;
 	}
 }
 
@@ -109,7 +109,7 @@ class HealPotion extends Item {
 	}
 
 	constructor(game: Game) {
-		super (game);
+		super(game);
 	}
 }
 
@@ -134,7 +134,7 @@ interface MyState {
 }
 
 class Game extends React.Component<any, MyState> {
-	
+
 	columns: number = 34;
 	rows: number = 20;
 
@@ -228,22 +228,48 @@ class Game extends React.Component<any, MyState> {
 		} else {
 			princessTile = board[playerY + 1][playerX];
 		}
-		
-		// places enemies
+
+		// generates and places enemies
 		const enemies: Enemy[] = [];
 
+		const monsters = {
+			"goblin": 2 + 5 / floor,
+			"orc": 3
+			// "skeleton": 2 + 0.1 * floor,
+			// "ogre": 1,
+		};
+
 		for (let n = 0; n < 1 + floor; n++) {
+
+			let monsterType = ROT.RNG.getWeightedValue(monsters);
 
 			let unitTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 
 			while (unitTile.wall || unitTile.unit || unitTile === princessTile || unitTile === playerTile) {
 				console.log('!!!');
 				unitTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
+			};
+
+			let unit: Enemy;
+
+			if (monsterType === "goblin") {
+				unit = new Enemy('Goblin', 4, unitTile, { min: 1, max: 2 });
+			} else if (monsterType === "orc") {
+				unit = new Enemy('Orc', 5, unitTile, { min: 1, max: 3 });
 			}
 
-			// to be replaced with random enemy generation
-			let unit = new Enemy('Orc', 5, unitTile, { min: 1, max: 3 });
 			enemies.push(unit);
+			// to be replaced with random enemy generation
+		}
+
+		for (let n = 0; n < floor + 1; n++) {
+			let spikeTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
+
+			while (spikeTile.unit || spikeTile.wall || spikeTile === princessTile || spikeTile === playerTile) {
+				spikeTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
+			}
+
+			spikeTile.ground = 'spikes';
 		}
 
 		return {
@@ -349,6 +375,12 @@ class Game extends React.Component<any, MyState> {
 
 		const targetTile: Tile = this.state.board[y][x];
 
+		if (targetTile.ground === "spikes") {
+			let damage = random(1, 3);
+			this.updateLog(`The spikes hurt you for ${damage} damage!`, 'red');
+			this.playerLoseLife(this.state.player, damage);
+		}
+
 		if (targetTile.wall) {
 			return false;
 		} else if (!targetTile.unit) {
@@ -356,10 +388,17 @@ class Game extends React.Component<any, MyState> {
 			targetTile.unit = this.state.player;
 			this.state.player.tile = targetTile;
 		} else if (targetTile.unit === this.state.princess) {
-			this.state.princess.tile = this.state.player.tile; 
+
+			this.state.princess.tile = this.state.player.tile;
 			this.state.player.tile.unit = this.state.princess;
 			targetTile.unit = this.state.player;
 			this.state.player.tile = targetTile;
+
+			if (this.state.princess.tile.ground === "spikes") {
+				let damage = random(1, 3);
+				this.updateLog(`The spikes hurt the princess for ${damage} damage!`, 'red');
+				this.playerLoseLife(this.state.princess, damage);
+			}
 
 		} else {
 			this.playerAttack(targetTile.unit);
@@ -403,8 +442,14 @@ class Game extends React.Component<any, MyState> {
 			this.state.princess.tile.unit = null;
 			this.state.princess.tile = pathPlayer[1];
 			pathPlayer[1].unit = this.state.princess;
+
+			if (pathPlayer[1].ground === "spikes") {
+				let damage = random(1, 3);
+				this.updateLog(`The spikes hurt the princess for ${damage} damage!`, 'red');
+				this.playerLoseLife(this.state.princess, damage);
+			}
 		}
-		
+
 		// enemies chase princess
 		const pathToPrincess = new ROT.Path.AStar(this.state.princess.tile.x, this.state.princess.tile.y, (x: number, y: number) => {
 			return !this.state.board[y][x].wall;
@@ -429,7 +474,7 @@ class Game extends React.Component<any, MyState> {
 				let damage = random(unit.damage.min, unit.damage.max);
 				this.updateLog(`The ${unit.name.toLowerCase()} hits the princess for ${damage} damage!`, 'red');
 				this.playerLoseLife(this.state.princess, damage);
-			} else if	(!path[1].unit) {
+			} else if (!path[1].unit) {
 				// move
 				let targetTile = path[1];
 				unit.tile.unit = null;
@@ -448,8 +493,8 @@ class Game extends React.Component<any, MyState> {
 		unit.currentHP -= damage;
 
 		if (unit.currentHP <= 0) {
+			unit.currentHP = 0;
 			if (unit === this.state.player) {
-
 				this.updateLog('You died...', 'grey');
 			} else if (unit === this.state.princess) {
 				this.updateLog('The princess died...', 'grey');
@@ -457,7 +502,7 @@ class Game extends React.Component<any, MyState> {
 			this.setState({
 				gameState: GameState.Dead
 			})
-		} 
+		}
 	}
 
 	updateLog(text: string, color: string = "") {
@@ -467,8 +512,6 @@ class Game extends React.Component<any, MyState> {
 		while (this.state.log.length > 30) {
 			this.state.log.shift();
 		}
-
-		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight; // this is not working as well it should
 
 		this.setState({
 			log: this.state.log
@@ -485,6 +528,10 @@ class Game extends React.Component<any, MyState> {
 
 	componentDidMount() {
 		window.addEventListener('keydown', this.controls);
+	}
+
+	componentDidUpdate() {
+		document.querySelector(".log").scrollTop = document.querySelector(".log").scrollHeight; 
 	}
 
 	calculateFOV() {
@@ -541,7 +588,7 @@ class Game extends React.Component<any, MyState> {
 			<div className="root">
 				<Inventory gameState={this.state.gameState} useItem={this.useItem} inventory={this.state.inventory} />
 				<Board board={this.state.board} />
-				<UI player={this.state.player} princess={this.state.princess} log={this.state.log} toggleInventory={this.toggleInventory} />
+				<UI player={this.state.player} floor={this.state.floor} princess={this.state.princess} log={this.state.log} toggleInventory={this.toggleInventory} />
 			</div>
 		)
 	}

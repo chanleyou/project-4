@@ -20,6 +20,7 @@ interface Props {
 	};
 	log: LogItem[];
 	toggleInventory: Function;
+	floor: number;
 }
 
 class Buttons extends React.Component<any, any> {
@@ -55,7 +56,7 @@ export class UI extends React.Component<Props, object> {
 			<div className="ui">
 				<div className="info">
 					<h5>{player.name}</h5>
-					<p>Level 1 Knight</p>
+					<p>Level 1 Knight &mdash; DL: {this.props.floor}</p>
 					<div className="health-line">
 						<span>Life:</span>
 						<div className="health-bar">
