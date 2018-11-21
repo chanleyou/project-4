@@ -1,8 +1,8 @@
-## Save the Princess
+# Save the Princess
 
 Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). Tileset courtesy of [0x72](https://0x72.itch.io/dungeontileset-ii).
 
-### To-Do List
+## To-Do List
 
 - [x] Pathfinding 
 - [x] Combat
@@ -11,14 +11,15 @@ Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). T
 - [ ] Mouse Controls
 - [ ] Help Page
 - [ ] Floating Health Bars
-- [x] Inventory & Items (kind of)
+- [x] Inventory System
 - [ ] Variety
 - [ ] Shops
 - [ ] Animations
 - [ ] Menu
 - [ ] Online Saves
 
-### Issues
+## Issues
 
-- Monsters don't consider non-optimal routes so they block each other even when there's space. Rework using Dijkstra instead of AStar?
+- Monsters don't consider non-optimal routes. Rework using Dijkstra instead of AStar?
 - Rewrite actions so they take a callback (the action itself), then execute endTurn -> monsterMove directly? 
+

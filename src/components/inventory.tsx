@@ -2,6 +2,13 @@ import * as React from 'react';
 
 import "./inventory.scss";
 
+enum GameState {
+	IsRunning,
+	Paused,
+	Inventory,
+	Dead
+}
+
 interface Item {
 	icon: string;
 	name: string;
@@ -12,6 +19,7 @@ interface Item {
 interface Props {
 	inventory: Item[];
 	useItem: Function;
+	gameState: GameState;
 }
 
 export class Inventory extends React.Component<Props, object> {
@@ -21,22 +29,26 @@ export class Inventory extends React.Component<Props, object> {
 		const inventory = this.props.inventory.map((item: Item, index) => {
 			return (
 				<div key={index + item.name} className="item">
-					<img src={'../sprites/'+ item.icon + '.png'} />
+					<img src={'../sprites/' + item.icon + '.png'} />
 					<div>
 						<h5>{item.name}</h5>
 						<p>{item.description}</p>
 					</div>
-					<button onClick={() => 
-					item.effect()} >Use</button>
+					<button onClick={() =>
+						item.effect()} >Use</button>
 				</div>
 			)
 		})
-			
-		return (
-			<div className="inventory">
-				<h1>Inventory</h1>
-				{inventory}
-			</div>
-		)
-	}	
+
+		if (this.props.gameState === GameState.Inventory) {
+			return (
+				<div className="inventory">
+					<h1>Inventory</h1>
+					{inventory}
+				</div>
+			)
+		} else {
+			return null;
+		}
+	}
 }

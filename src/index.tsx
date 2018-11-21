@@ -1,10 +1,13 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+
 const ROT = require('rot-js');
 
-import './style.scss'; // global stylesheet
+import './style.scss'; // global stylesheet... though all of them are
+
 import { UI } from './components/ui';
 import { Inventory } from './components/inventory';
+import { Board } from './components/board';
 
 const random = (min: number, max: number) => {
 	return min + Math.floor(Math.random() * (max - min + 1));
@@ -20,18 +23,34 @@ interface Unit {
 }
 
 interface Damage {
-	min: number,
-	max: number
+	min: number;
+	max: number;
 }
 
 class Player implements Unit {
 	currentHP: number;
+	maxHP: number;
 	damage: Damage;
 	isPlayer: boolean;
 
-	constructor(public name: string, public maxHP: number = 15, public tile: Tile) {
-		this.currentHP = maxHP;
+	constructor(public name: string, public tile: Tile) {
+		this.maxHP = 15;
+		this.currentHP = 15;
 		this.isPlayer = true;
+	}
+}
+
+class Princess implements Unit {
+	name: string;
+	currentHP: number;
+	maxHP: number;
+	damage: Damage;
+	isPlayer: boolean;
+
+	constructor(public tile: Tile) {
+		this.name = "Princess";
+		this.maxHP = 10;
+		this.currentHP = 10;
 	}
 }
 
@@ -81,11 +100,11 @@ class HealPotion extends Item {
 	game: Game;
 	icon = "flask_big_green";
 	name = 'Healing Potion';
-	description = "Heals you for 5-8 life.";
+	description = "Can be consumed to heal you for 5-8 life.";
 	effect = function () {
 		let heal = random(5, 8);
 		this.game.playerGainLife(heal);
-		this.game.updateLog(`The healing potion restores ${heal} hp.`, 'green');
+		this.game.updateLog(`The potion restores ${heal} life.`, 'green');
 		this.game.endTurn();
 		this.game.useItem(this.game.state.inventory.indexOf(this));
 	}
@@ -104,6 +123,7 @@ enum GameState {
 
 interface MyState {
 	player: Player,
+	princess: Princess,
 	board: Tile[][],
 	floor: number,
 	gameState: GameState,
@@ -114,10 +134,14 @@ interface MyState {
 	inventory: Item[],
 }
 
-
 class Game extends React.Component<any, MyState> {
+	
+	columns: number = 34;
+	rows: number = 20;
+
 	constructor(props: any) {
-		super(props)
+		super(props);
+
 
 		this.createFloor = this.createFloor.bind(this);
 		this.controls = this.controls.bind(this);
@@ -135,12 +159,15 @@ class Game extends React.Component<any, MyState> {
 		this.useItem = this.useItem.bind(this);
 
 		let floor = this.createFloor(1);
-		let player = new Player('Test', 15, floor.board[floor.y][floor.x]);
+		let player = new Player('Test', floor.playerTile);
+		let princess = new Princess(floor.princessTile);
 
-		floor.board[floor.y][floor.x].unit = player;
+		floor.playerTile.unit = player;
+		floor.princessTile.unit = princess;
 
 		this.state = {
 			player: player,
+			princess: princess,
 			board: floor.board,
 			floor: 1,
 			gameState: GameState.IsRunning,
@@ -153,14 +180,12 @@ class Game extends React.Component<any, MyState> {
 	}
 
 	createFloor(floor: number) {
-		const columns: number = 34;
-		const rows: number = 20;
 
-		const map = new ROT.Map.Uniform(columns, rows, { roomDugPercentage: 0.25 });
+		const map = new ROT.Map.Uniform(this.columns, this.rows, { roomDugPercentage: 0.25 });
 
 		const board: Tile[][] = [];
 
-		for (let i = 0; i < rows; i++) {
+		for (let i = 0; i < this.rows; i++) {
 			let row: Tile[] = [];
 			board.push(row);
 		}
@@ -181,37 +206,52 @@ class Game extends React.Component<any, MyState> {
 
 		board[stairY][stairX].ground = 'stairs';
 
-		// places the player
-		let playerX = random(0, columns - 1);
-		let playerY = random(0, rows - 1);
+		// should rewrite this to place the player in a random room
+		let playerX = random(0, this.columns - 1);
+		let playerY = random(0, this.rows - 1);
 
-		while (board[playerY][playerX].wall || board[playerY][playerX].unit) {
-			playerX = random(0, columns - 1);
-			playerY = random(0, rows - 1);
+		while (board[playerY][playerX].wall) {
+			playerX = random(0, this.columns - 1);
+			playerY = random(0, this.rows - 1);
 		}
 
+		let playerTile = board[playerY][playerX];
+
+		// places the princess next to the player
+		let princessTile: Tile;
+
+		if (!board[playerY][playerX - 1].wall) {
+			princessTile = board[playerY][playerX - 1];
+		} else if (!board[playerY][playerX + 1].wall) {
+			princessTile = board[playerY][playerX + 1];
+		} else if (!board[playerY - 1][playerX].wall) {
+			princessTile = board[playerY - 1][playerX];
+		} else {
+			princessTile = board[playerY + 1][playerX];
+		}
+		
 		// places enemies
 		const enemies: Enemy[] = [];
 
 		for (let n = 0; n < 1 + floor; n++) {
-			let unitX = random(0, columns - 1);
-			let unitY = random(0, rows - 1);
 
-			while (board[unitY][unitX].wall || board[unitY][unitX].unit) {
-				unitX = random(0, columns - 1);
-				unitY = random(0, rows - 1);
+			let unitTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
+
+			while (unitTile.wall || unitTile.unit || unitTile === princessTile || unitTile === playerTile) {
+				console.log('!!!');
+				unitTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 			}
 
 			// to be replaced with random enemy generation
-			let unit = new Enemy('Orc', 5, board[unitY][unitX], { min: 1, max: 3 });
+			let unit = new Enemy('Orc', 5, unitTile, { min: 1, max: 3 });
 			enemies.push(unit);
 		}
 
 		return {
 			board: board,
 			enemies: enemies,
-			x: playerX,
-			y: playerY
+			playerTile: playerTile,
+			princessTile: princessTile
 		}
 	}
 
@@ -286,8 +326,11 @@ class Game extends React.Component<any, MyState> {
 
 		this.updateLog(`Moving to DL:${this.state.floor + 1}.`);
 
-		this.state.player.tile = newFloor.board[newFloor.y][newFloor.x];
+		this.state.player.tile = newFloor.playerTile;
 		this.state.player.tile.unit = this.state.player;
+
+		this.state.princess.tile = newFloor.princessTile;
+		this.state.princess.tile.unit = this.state.princess;
 
 		this.setState({
 			floor: this.state.floor + 1,
@@ -421,7 +464,7 @@ class Game extends React.Component<any, MyState> {
 		}
 
 		const fov = new ROT.FOV.PreciseShadowcasting((x: number, y: number) => {
-			if (y < 0 || x < 0 || y >= 20 || x >= 34) {
+			if (y < 0 || x < 0 || y >= this.rows || x >= this.columns) {
 				return false;
 			} else {
 				return !this.state.board[y][x].wall;
@@ -450,6 +493,9 @@ class Game extends React.Component<any, MyState> {
 
 	useItem(index: number) {
 		this.state.inventory.splice(index, 1);
+		this.setState({
+			gameState: GameState.IsRunning
+		})
 	}
 
 	render() {
@@ -459,66 +505,10 @@ class Game extends React.Component<any, MyState> {
 		// LOGGING
 		console.log(`T${this.state.turn}:`, this.state);
 
-		// board generation
-		const board = this.state.board.map((row, rowIndex) => {
-
-			const rows = row.map((tile, colIndex) => {
-
-				let tileClass: string = 'tile';
-				let unit = null;
-
-				// rewrite this logic tree later
-				if (!tile.explored) {
-					tileClass = '';
-				} else if (tile.wall) {
-					tileClass = 'wall';
-				} else if (!tile.visible) {
-					unit = <span className="fog"></span>
-				} else if (tile.unit) {
-
-					if (tile.unit.isPlayer) {
-						unit = <span className="player"></span>
-					} else {
-
-						switch (tile.unit.name) {
-							case 'Orc':
-								unit = <span className="orc"></span>
-								break;
-
-						}
-					}
-				}
-
-				if (tile.explored && tile.ground === 'stairs') {
-					tileClass = 'stairs';
-				}
-
-				return (
-					<div className={tileClass} key={colIndex}>
-						{unit}
-					</div>
-				)
-			})
-
-			return (
-				<div className="row" key={rowIndex}>
-					{rows}
-				</div>
-			)
-		})
-
-		let inventory = null;
-
-		if (this.state.gameState === GameState.Inventory) {
-			inventory = <Inventory useItem={this.useItem} inventory={this.state.inventory} />
-		}
-
 		return (
 			<div className="root">
-				<div className="board">
-					{inventory}
-					{board}
-				</div>`
+				<Inventory gameState={this.state.gameState} useItem={this.useItem} inventory={this.state.inventory} />
+				<Board board={this.state.board} />
 				<UI player={this.state.player} log={this.state.log} toggleInventory={this.toggleInventory} />
 			</div>
 		)

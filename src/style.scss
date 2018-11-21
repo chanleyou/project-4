@@ -55,8 +55,8 @@ $dark-grey: #212121;
 			z-index: 0;
 			background-size: cover;
 			position: relative;
-			// box-sizing: border-box;
-			// border: 1px solid $dark-grey;
+			box-sizing: border-box;
+			border: 1px solid $dark-grey;
 
 			.player {
 				display: inline-block;
@@ -66,6 +66,20 @@ $dark-grey: #212121;
 				height: 140%;
 				width: 140%;
 				background-image: url(./sprites/knight_f_idle_anim_f0.png);
+				z-index: 5;
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-position: center;
+			}
+
+			.princess {
+				display: inline-block;
+				position: absolute;
+				bottom: 10%;
+				left: -20%;
+				height: 140%;
+				width: 140%;
+				background-image: url(./sprites/elf_f_idle_anim_f0.png);
 				z-index: 5;
 				background-size: contain;
 				background-repeat: no-repeat;

@@ -11,7 +11,7 @@ interface Props {
 	player: {
 		name: string,
 		currentHP: number,
-		maxHP: number,
+		maxHP: number;
 	};
 	log: LogItem[];
 	toggleInventory: Function;
@@ -26,7 +26,7 @@ class Buttons extends React.Component<any, any> {
 		return (
 			<div>
 				<button onClick={this.props.toggleInventory}><span className="amber">[I]</span> Inventory</button>
-				<button><span className="amber">[?]</span> Controls</button>			
+				<button><span className="amber">[?]</span> Help</button>			
 			</div>
 		) 
 	}

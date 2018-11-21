@@ -8,13 +8,15 @@ $dark-grey: #212121;
 	left: 50%;
 	transform: translate(-50%, -50%);
 	z-index: 99;
-	width: 60%;
+	width: 50%;
 	height: 80%;
 	overflow: auto;
 	background-color: $dark-grey;
 	border: 1px solid grey;
 	box-sizing: border-box;
 	color: white;
+	animation-name: animatetop;
+	animation-duration: 0.4s;
 
 	h1 {
 		text-align: center;
@@ -62,4 +64,9 @@ $dark-grey: #212121;
 			background-color: $dark-grey;
 		}
 	}
+}
+
+@keyframes animatetop {
+	from {top: 0%; opacity: 0}
+	to {top: 50%; opacity: 0.95}
 }
