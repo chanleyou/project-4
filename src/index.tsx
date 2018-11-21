@@ -263,7 +263,7 @@ class Game extends React.Component<any, MyState> {
 			// to be replaced with random enemy generation
 		}
 
-		for (let n = 0; n < floor + 1; n++) {
+		for (let n = 0; n < random(1, 5); n++) {
 			let spikeTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 
 			while (spikeTile.unit || spikeTile.wall || spikeTile === princessTile || spikeTile === playerTile) {
@@ -366,7 +366,7 @@ class Game extends React.Component<any, MyState> {
 	}
 
 	playerMove(y: number, x: number) {
-		if (!this.state.turn || this.state.gameState !== GameState.IsRunning) {
+		if (!this.state.playerTurn || this.state.gameState !== GameState.IsRunning) {
 			return false;
 		}
 
@@ -376,18 +376,24 @@ class Game extends React.Component<any, MyState> {
 
 		const targetTile: Tile = this.state.board[y][x];
 
-		if (targetTile.ground === "spikes") {
-			let damage = random(1, 3);
-			this.updateLog(`The spikes hurt you for ${damage} damage!`, 'red');
-			this.playerLoseLife(this.state.player, damage);
-		}
-
 		if (targetTile.wall) {
 			return false;
-		} else if (!targetTile.unit) {
+		}
+
+		if (!targetTile.unit || targetTile.unit === this.state.princess) {
+			if (targetTile.ground === "spikes") {
+				let damage = random(1, 3);
+				this.updateLog(`The spikes hurt you for ${damage} damage!`, 'red');
+				this.playerLoseLife(this.state.player, damage);
+			}
+		}
+
+		if (!targetTile.unit) {
 			this.state.player.tile.unit = null;
+
 			targetTile.unit = this.state.player;
 			this.state.player.tile = targetTile;
+
 		} else if (targetTile.unit === this.state.princess) {
 
 			this.state.princess.tile = this.state.player.tile;
