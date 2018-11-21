@@ -94,12 +94,16 @@ class HealPotion extends Item {
 	game: Game;
 	icon = "flask_big_green";
 	name = 'Healing Potion';
-	description = "Use to heal you and the princess for 5-8 life.";
-	effect = function () {
-		let heal = random(5, 8);
-		this.game.playerGainLife(this.game.state.player, heal);
-		this.game.playerGainLife(this.game.state.princess, heal);
-		this.game.updateLog(`The potion restores ${heal} life.`, 'green');
+	description = "Use to heal you or the princess for 7-10 life.";
+	effect = function (target: string) {
+		let heal = random(7, 10);
+		if (target === 'player') {
+			this.game.playerGainLife(this.game.state.player, heal);
+			this.game.updateLog(`The potion heals you for ${heal} life.`, 'green');
+		} else {
+			this.game.playerGainLife(this.game.state.princess, heal);
+			this.game.updateLog(`The potion heals the princess for ${heal} life.`, 'green');
+		}
 		this.game.endTurn();
 		this.game.useItem(this.game.state.inventory.indexOf(this));
 	}

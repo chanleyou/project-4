@@ -34,8 +34,8 @@ export class Inventory extends React.Component<Props, object> {
 						<h5>{item.name}</h5>
 						<p>{item.description}</p>
 					</div>
-					<button onClick={() =>
-						item.effect()} >Use</button>
+					<button onClick={() => item.effect('player')} >Use (You)</button>
+					<button onClick={() => item.effect('princess')} >Use (Princess)</button>
 				</div>
 			)
 		})
