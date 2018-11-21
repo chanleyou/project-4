@@ -7,6 +7,7 @@ import './style.scss'; // global stylesheet... though all of them are
 
 import { UI } from './components/ui';
 import { Inventory } from './components/inventory';
+import { GameOver } from './components/gameover';
 import { Board } from './components/board';
 
 const random = (min: number, max: number) => {
@@ -498,8 +499,6 @@ class Game extends React.Component<any, MyState> {
 							this.updateLog(`The ${unit.name.toLowerCase()} dies to the spikes!`, 'amber');
 						}
 					}
-
-
 				}
 			}
 		}
@@ -608,6 +607,7 @@ class Game extends React.Component<any, MyState> {
 		return (
 			<div className="root">
 				<Inventory gameState={this.state.gameState} useItem={this.useItem} inventory={this.state.inventory} />
+				<GameOver gameState={this.state.gameState} />
 				<Board board={this.state.board} />
 				<UI player={this.state.player} floor={this.state.floor} princess={this.state.princess} log={this.state.log} toggleInventory={this.toggleInventory} />
 			</div>
