@@ -10,8 +10,9 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.tsx?$/, 
-				loader: "awesome-typescript-loader" 
+				test: /\.tsx?$/,
+				exclude: /node_modules/,
+				loader: "awesome-typescript-loader"
 			},
 			{
 				test: /\.(js|jsx)$/,
@@ -20,11 +21,7 @@ module.exports = {
 			},
 			{
 				test: /\.scss$/,
-				use: [
-					"style-loader", // creates style nodes from JS strings
-					"css-loader", // translates CSS into CommonJS
-					"sass-loader" // compiles Sass to CSS, using Node Sass by default
-				]
+				loader: 'style-loader!css-loader!sass-loader'
 			},
 			{
 				test: /\.css$/,
@@ -33,6 +30,12 @@ module.exports = {
 			{
 				test: /\.png|.jpg$/,
 				loader: 'file-loader'
+			},
+			{
+				test: /\.(woff|woff2|eot|ttf|otf)$/,
+				use: [
+					'file-loader'
+				]
 			}
 		]
 	},

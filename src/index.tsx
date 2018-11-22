@@ -256,7 +256,6 @@ class Game extends React.Component<any, MyState> {
 			let unitTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 
 			while (unitTile.wall || unitTile.unit || unitTile === princessTile || unitTile === playerTile) {
-				console.log('!!!');
 				unitTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 			};
 
@@ -626,7 +625,7 @@ class Game extends React.Component<any, MyState> {
 		this.calculateFOV();
 
 		// LOGGING
-		console.log(`T${this.state.turn}:`, this.state);
+		// console.log(`T${this.state.turn}:`, this.state);
 
 		return (
 			<div className="root">

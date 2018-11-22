@@ -1,6 +1,22 @@
 @import 'reset.css';
 
-$header: 'Ovo', serif;
+@font-face {
+  font-family: 'Ovo';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Ovo'),
+       url('./fonts/Ovo-Regular.ttf') format('truetype')
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Inconsolata'),
+       url('./fonts/Inconsolata-Regular.ttf') format('truetype')
+}
+
+$header: 'Ovo', monospace;
 $monospace: 'Inconsolata', 'Consolas', 'Menlo', monospace;
 
 $tile: 32px;

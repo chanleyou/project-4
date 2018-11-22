@@ -1,32 +1,44 @@
 const webpack = require('webpack');
+const path = require('path');
 const webpackDevMiddleware = require('webpack-dev-middleware');
-const webpackHotMiddleware = require('webpack-hot-middleware');
-const webpackConfig = require('./webpack.config');
-const compiler = webpack(webpackConfig);
 const express = require('express');
 const app = express();
 
-// Express will serve the static index.html from the ./src directory.
-// index.html will load bundle.js, which is the compiled script file by webpack
-app.use(express.static('./src'));
+const webpackHotMiddleware = require('webpack-hot-middleware');
+const webpackConfig = require('./webpack.dev');
+const webpackProduction = require('./webpack.prod');
+const compiler = webpack(webpackConfig);
 
-// Express will use webpack to compile the JS files
-app.use(webpackDevMiddleware(compiler, {
-    noInfo: true,
-    stats: {
-        colors: true
-    }
-}));
+const PORT = process.env.PORT || 3000;
 
-// Furthermore, express will listen for file changes and trigger webpack's compiler if any file changes, then push the updated script to any client. This allows us to see changes live in our browser, very useful for development work!
-app.use(webpackHotMiddleware(compiler));
+if (PORT === 3000) {
+	console.log('Local development.');
+	
+	app.use(express.static('./src'));
 
-// Note that you are free to write your express server logic here on. As long as the view that you render loads bundle.js, it will have access to React's code (and in turn, React will have access to your view).
-app.get('/hello', (req, res) => {
-    res.send('Hello back!');
-});
+	// Express will use webpack to compile the JS files
+	app.use(webpackDevMiddleware(compiler, {
+			noInfo: true,
+			stats: {
+					colors: true
+			}
+	}));
+	
+	// Furthermore, express will listen for file changes and trigger webpack's compiler if any file changes, then push the updated script to any client. This allows us to see changes live in our browser, very useful for development work!
+	app.use(webpackHotMiddleware(compiler));
+	
+} else {
 
-const server = app.listen(3000, () => {console.log('Listening')});
+	console.log('Production.');
+
+	app.use(express.static('./dist'));
+	
+	app.get('*', (req, res) => {
+		res.sendFile(path.resolve('./src/', 'index.html'));
+	});
+}
+
+const server = app.listen(PORT, () => {console.log('Listening on:', PORT)});
 
 // Captures ctrl-C exit
 process.on('SIGINT', () => {
