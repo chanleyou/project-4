@@ -1,6 +1,9 @@
 # Save the Princess
 
+
 Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). Tileset courtesy of [0x72](https://0x72.itch.io/dungeontileset-ii).
+
+Play it online [here](http://ly-resistance.herokuapp.com).
 
 ## To-Do List
 
@@ -9,14 +12,13 @@ Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). T
 - [x] FOV
 - [x] Princess
 - [x] Inventory System
-- [ ] Skills
+- [x] Help & Menus
+- [ ] Levels & Skills
 - [ ] Mouse Controls
-- [ ] Help Page
 - [ ] Floating Health Bars
 - [ ] Variety
 - [ ] Shops
 - [ ] Animations
-- [ ] Menu
 - [ ] Online Saves
 
 ## Issues

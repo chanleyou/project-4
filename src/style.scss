@@ -260,12 +260,17 @@ $light-amber: #ffe082;
 	}
 }
 
-.gameover {
+.gameover, .help {
 	padding: 3rem;
 
 	button {
 		margin-top: 1rem;
 	}
+}
+
+.help p {
+	margin: 0.5rem;
+	text-align: justify;
 }
 
 .startmenu, .gameover {

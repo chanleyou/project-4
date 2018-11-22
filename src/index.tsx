@@ -10,6 +10,7 @@ import { Inventory } from './components/inventory';
 import { GameOver } from './components/gameover';
 import { Board } from './components/board';
 import { StartMenu } from './components/startmenu';
+import { Help } from './components/help';
 
 const random = (min: number, max: number) => {
 	return min + Math.floor(Math.random() * (max - min + 1));
@@ -156,7 +157,7 @@ class Game extends React.Component<any, MyState> {
 		this.wait = this.wait.bind(this);
 		this.endTurn = this.endTurn.bind(this);
 		this.calculateFOV = this.calculateFOV.bind(this);
-		this.toggleInventory = this.toggleInventory.bind(this);
+		this.toggleState = this.toggleState.bind(this);
 		this.useItem = this.useItem.bind(this);
 		this.setName = this.setName.bind(this);
 
@@ -295,36 +296,43 @@ class Game extends React.Component<any, MyState> {
 
 		var keyPressed = event.keyCode;
 		switch (keyPressed) {
-			// case 87: // w
+			case 87: // w
 			case 104: // numpad 8
 				this.playerMove(y - 1, x);
 				break;
-			// case 83: // s
+			case 83: // s
 			case 98: // numpad 2
 				this.playerMove(y + 1, x);
 				break;
-			// case 65: // a
+			case 65: // a
 			case 100: // numpad 4
 				this.playerMove(y, x - 1);
 				break;
-			// case 68: // d
+			case 68: // d
 			case 102: // numpad 6
 				this.playerMove(y, x + 1);
 				break;
+			case 81: // q
 			case 103: // numpad 7
 				this.playerMove(y - 1, x - 1);
 				break;
+			case 69: // e
 			case 105: // numpad 9
 				this.playerMove(y - 1, x + 1);
 				break;
+			case 90: // z
 			case 97: // numpad 1
 				this.playerMove(y + 1, x - 1);
 				break;
+			case 67: // c
 			case 99: // numpad 3
 				this.playerMove(y + 1, x + 1);
 				break;
 			case 73: // i
-				this.toggleInventory();
+				this.toggleState(GameState.Inventory);
+				break;
+			case 191: // ?
+				this.toggleState(GameState.Paused);
 				break;
 			case 190: // >
 				if (this.state.player.tile.ground === 'stairs') {
@@ -336,7 +344,7 @@ class Game extends React.Component<any, MyState> {
 				this.wait()
 				break;
 			case 27: // escape
-				if (this.state.gameState === GameState.Inventory) {
+				if (this.state.gameState === GameState.Inventory || this.state.gameState === GameState.Paused) {
 					this.setState({
 						gameState: GameState.IsRunning
 					})
@@ -357,7 +365,7 @@ class Game extends React.Component<any, MyState> {
 	playerGainLife(unit: Unit, heal: number) {
 		if (this.state.gameState !== GameState.Dead) {
 			unit.currentHP += heal;
-	
+
 			if (unit.currentHP > unit.maxHP) {
 				unit.currentHP = unit.maxHP;
 			}
@@ -601,12 +609,13 @@ class Game extends React.Component<any, MyState> {
 		})
 	}
 
-	toggleInventory() {
+	toggleState(state: GameState) {
+		console.log('firing!!!');
 		if (this.state.gameState === GameState.IsRunning) {
 			this.setState({
-				gameState: GameState.Inventory
+				gameState: state
 			})
-		} else if (this.state.gameState === GameState.Inventory) {
+		} else if (this.state.gameState === state) {
 			this.setState({
 				gameState: GameState.IsRunning
 			})
@@ -632,8 +641,9 @@ class Game extends React.Component<any, MyState> {
 				<StartMenu gameState={this.state.gameState} setName={this.setName} />
 				<Inventory gameState={this.state.gameState} useItem={this.useItem} inventory={this.state.inventory} />
 				<GameOver gameState={this.state.gameState} />
+				<Help gameState={this.state.gameState} />
 				<Board board={this.state.board} player={this.state.player} />
-				<UI player={this.state.player} floor={this.state.floor} princess={this.state.princess} log={this.state.log} toggleInventory={this.toggleInventory} />
+				<UI player={this.state.player} floor={this.state.floor} princess={this.state.princess} log={this.state.log} toggleState={this.toggleState} />
 			</div>
 		)
 	}

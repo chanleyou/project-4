@@ -1,5 +1,13 @@
 import * as React from 'react';
 
+enum GameState {
+	StartMenu,
+	IsRunning,
+	Paused,
+	Inventory,
+	Dead
+}
+
 interface LogItem {
 	text: string;
 	color: string;
@@ -17,7 +25,7 @@ interface Props {
 		maxHP: number;
 	};
 	log: LogItem[];
-	toggleInventory: Function;
+	toggleState: Function;
 	floor: number;
 }
 
@@ -29,8 +37,8 @@ class Buttons extends React.Component<any, any> {
 	render() {
 		return (
 			<span>
-				<button onClick={this.props.toggleInventory}><span className="amber">[I]</span> Inventory</button>
-				<button><span className="amber">[?]</span> Help</button>			
+				<button onClick={() => this.props.toggleState(GameState.Inventory)}><span className="amber">[I]</span> Inventory</button>
+				<button onClick={() => this.props.toggleState(GameState.Paused)}><span className="amber">[?]</span> Help</button>			
 			</span>
 		) 
 	}
@@ -76,7 +84,7 @@ export class UI extends React.Component<Props, object> {
 				<div className="ui-box log">
 					{log}
 				</div>
-				<Buttons toggleInventory={this.props.toggleInventory} />
+				<Buttons toggleState={this.props.toggleState} />
 			</div>
 		)
 	}	
