@@ -259,7 +259,7 @@ class Game extends React.Component<any, MyState> {
 			"goblin": 5 / floor,
 			"orc": 3 + floor / 2,
 			// "skeleton": 2 + 0.1 * floor,
-			"ogre": floor / 2,
+			"ogre": (floor / 4) - 0.5,
 		};
 
 		for (let n = 0; n < 1 + floor; n++) {
@@ -283,14 +283,13 @@ class Game extends React.Component<any, MyState> {
 			}
 
 			enemies.push(unit);
-			// to be replaced with random enemy generation
 		}
 
 		// places spikes
 		for (let n = 0; n < random(1, 5); n++) {
 			let spikeTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 
-			while (spikeTile.unit || spikeTile.wall || spikeTile === princessTile || spikeTile === playerTile || spikeTile.ground === 'chest-closed') {
+			while (spikeTile.unit || spikeTile.wall || spikeTile === princessTile || spikeTile === playerTile || spikeTile.ground) {
 				spikeTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 			}
 
