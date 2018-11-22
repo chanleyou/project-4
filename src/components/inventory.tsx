@@ -1,8 +1,7 @@
 import * as React from 'react';
 
-import "./inventory.scss";
-
 enum GameState {
+	StartMenu,
 	IsRunning,
 	Paused,
 	Inventory,
@@ -42,7 +41,7 @@ export class Inventory extends React.Component<Props, object> {
 
 		if (this.props.gameState === GameState.Inventory) {
 			return (
-				<div className="inventory">
+				<div className="inventory modal">
 					<h1>Inventory</h1>
 					{inventory}
 				</div>

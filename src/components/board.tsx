@@ -19,8 +19,12 @@ interface Tile {
 	explored: boolean;
 }
 
+interface Player {
+}
+
 interface Props {
 	board: Tile[][];
+	player: Player;
 }
 
 export class Board extends React.Component<Props, object> {
@@ -42,19 +46,19 @@ export class Board extends React.Component<Props, object> {
 					unit = <span className="fog" />
 				} else if (tile.unit) {
 
-					if (tile.unit.name === "Test") {
-						unit = <span className="player" />
+					if (tile.unit === this.props.player) {
+						unit = <span className="player player-unit unit" />
 					} else {
 
 						switch (tile.unit.name) {
 							case 'Princess':
-								unit = <span className="princess" />
+								unit = <span className="princess player-unit unit" />
 								break;
 							case 'Orc':
-								unit = <span className="orc" />
+								unit = <span className="orc small-enemy unit" />
 								break;
 							case 'Goblin':
-								unit = <span className="goblin" />
+								unit = <span className="goblin small-enemy unit" />
 								break;
 						}
 					}

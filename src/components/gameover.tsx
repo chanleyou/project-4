@@ -1,8 +1,7 @@
 import * as React from 'react';
 
-import "./gameover.scss";
-
 enum GameState {
+	StartMenu,
 	IsRunning,
 	Paused,
 	Inventory,
@@ -19,10 +18,10 @@ export class GameOver extends React.Component<Props, object> {
 
 		if (this.props.gameState === GameState.Dead) {
 			return (
-				<div className="gameover">
+				<div className="gameover modal">
 					<h1>Game Over</h1>
-					<p>Better luck next time!</p>
-					<button onClick={() => {location.reload()}}>Play Again?</button>
+					<label>Better luck next time...</label>
+					<button autoFocus onClick={() => {location.reload()}}>Play Again?</button>
 				</div>
 			)
 		} else {

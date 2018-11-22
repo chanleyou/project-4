@@ -1,27 +1,33 @@
 @import 'reset.css';
 
-$header: 'Ovo', sans-serif;
+$header: 'Ovo', serif;
 $monospace: 'Inconsolata', 'Consolas', 'Menlo', monospace;
+
 $tile: 32px;
+
+$grey: #9e9e9e;
 $dark-grey: #212121;
+$red: #f44336;
+$light-red: #ef9a9a;
+$dark-green: #2e7d32;
+$light-green: #a5d6a7;
+$light-amber: #ffe082;
 
 #app {
 	height: 100vh;
 	width: 100vw;
 	background-color: black;
 	font-family: $monospace;
+	color: white;
 }
 
 .root {
 	display: flex;
 	height: 100%;
 	width: 100%;
-	justify-content: center;
-	align-items: center;
 }
 
 .board {
-	background-color: black;
 	display: flex;
 	position: relative;
 	flex-direction: column;
@@ -39,10 +45,6 @@ $dark-grey: #212121;
 		.tile {
 			background-image: url(./sprites/floor_1.png);
 		}
-
-		// .wall {
-		// background-color: $dark-grey;
-		// }
 
 		.stairs {
 			background-image: url(./sprites/floor_ladder.png);
@@ -62,63 +64,46 @@ $dark-grey: #212121;
 			// box-sizing: border-box;
 			// border: 1px solid $dark-grey;
 
-			.player {
+			.unit {
 				display: inline-block;
 				position: absolute;
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-position: center;
+				z-index: 1;
+			}
+
+			.player-unit {
 				bottom: 10%;
 				left: -20%;
 				height: 140%;
 				width: 140%;
+			}
+
+			.small-enemy {
+				bottom: 10%;
+				left: -5%;
+				height: 100%;
+				width: 100%;
+			}
+
+			.player {
 				background-image: url(./sprites/knight_f_idle_anim_f0.png);
-				z-index: 5;
-				background-size: contain;
-				background-repeat: no-repeat;
-				background-position: center;
 				animation: player 0.5s infinite;
 			}
 
 			.princess {
-				display: inline-block;
-				position: absolute;
-				bottom: 10%;
-				left: -20%;
-				height: 140%;
-				width: 140%;
 				background-image: url(./sprites/elf_f_idle_anim_f0.png);
-				z-index: 5;
-				background-size: contain;
-				background-repeat: no-repeat;
-				background-position: center;
 				animation: princess 0.5s infinite;
 			}
 
 			.orc {
-				display: inline-block;
-				position: absolute;
-				bottom: 10%;
-				left: -5%;
-				height: 100%;
-				width: 100%;
 				background-image: url(./sprites/orc_warrior_idle_anim_f0.png);
-				z-index: 5;
-				background-size: contain;
-				background-repeat: no-repeat;
-				background-position: center;
 				animation: orc 0.5s infinite;
 			}
 
 			.goblin {
-				display: inline-block;
-				position: absolute;
-				bottom: 10%;
-				left: -5%;
-				height: 100%;
-				width: 100%;
 				background-image: url(./sprites/goblin_idle_anim_f0.png);
-				z-index: 5;
-				background-size: contain;
-				background-repeat: no-repeat;
-				background-position: center;
 				animation: goblin 0.5s infinite;
 			}
 
@@ -127,10 +112,224 @@ $dark-grey: #212121;
 				width: 100%;
 				height: 100%;
 				background-color: rgba(0,0,0,0.35);
-				z-index: 6;
+				z-index: 2;
 			}
 		}
 	}	
+}
+
+.ui {
+	width: 20%;
+	min-width: 200px;
+	height: 100%;
+	background-color: $dark-grey;
+	padding: 10px;
+	box-sizing: border-box;
+	color: white;
+	display: flex;
+	flex-direction: column;
+
+	.ui-box {
+		padding: 12px 8px;
+		border: 1px solid $grey;
+		margin: 0.25rem 0;
+	}
+
+	.log {
+		overflow: auto;
+		flex-grow: 2;
+		font-size: 0.8rem;
+	}
+
+	h5, p, .health-line {
+		margin: 0.25rem 0;
+	}
+
+	h5 {
+		font-family: $header;
+		font-size: 1.25rem;
+	}
+
+	.health-line {
+		width: 100%;
+		display: flex;
+		align-items: center;
+
+		.health-bar {
+			display: inline-block;
+			position: relative;
+			margin-left: 0.25rem;
+			width: 100%;
+			height: 1.25rem;
+			background-color: $red;
+		
+			.health-span {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+			}
+		
+			.health {
+				height: 100%;
+				background-color: $dark-green;
+			}
+		}
+	}
+
+	button {
+		width: 100%;
+		margin: 0.25rem 0;
+	}
+}
+
+.modal {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 2;
+	overflow: auto;
+	background-color: $dark-grey;
+	border: 1px solid grey;
+	box-sizing: border-box;
+	color: white;
+	text-align: center;
+	animation: animatetop 0.4s;
+
+	h1 {
+		font-family: $header;
+		font-size: 3rem;
+		text-shadow: 1px 1px $grey;
+		margin-bottom: 1rem;
+	}
+}
+
+.startmenu {
+	opacity: 1;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center; 
+	animation: none;
+
+ div {
+	 width: 45%;
+	 height: 50%;
+	}
+}
+
+.gameover {
+	padding: 3rem;
+
+	button {
+		margin-top: 1rem;
+	}
+}
+
+.startmenu, .gameover {
+	
+	p {
+		margin: 1.5rem auto;
+		font-family: $header;
+		text-align: justify;
+		line-height: 1.25rem;
+	}
+
+	label {
+		font-family: $header;
+		display: block;
+	}
+	
+	input {
+		font-family: $header;
+		font-size: inherit;
+		width: 50%;
+		box-sizing: border-box;
+		outline: none;
+		display: block;
+		border: none;
+		margin: 1rem auto;
+		padding: 0.25rem;
+		text-align: center;
+	}
+
+	button {
+		padding: 0.25rem 1rem;
+	}
+}
+
+.inventory {
+	padding: 1rem;
+	opacity: 0.95;
+	width: 50%;
+	height: 70%;
+
+	.item {
+		width: 100%;
+		border: 1px solid grey;
+		box-sizing: border-box;
+		padding: 5px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		img {
+			background-color: black;
+			display: inline-block;
+			border: 1px solid grey;
+			height: 32px;
+			width: 32px;
+		}
+
+		h5 {
+			font-size: 1.25rem;
+		}
+
+		div {
+			margin: 0 0.5rem;
+			text-align: left;
+			flex-grow: 2;
+		}
+	}
+}
+
+button {
+	margin: 0.25rem 0.25rem;
+	padding: 0.25rem;
+	font-size: inherit;
+	border: 1px solid white;
+	background-color: black;
+	font-family: inherit;
+	color: inherit;
+	box-sizing: border-box;
+	outline: none;
+}
+	
+button:active {
+	background-color: $dark-grey;
+}
+
+.red {
+	color: $light-red;
+}
+
+.grey {
+	color: $grey;
+}
+
+.green {
+	color: $light-green;
+}
+
+.amber {
+	color: $light-amber;
+}
+
+@keyframes animatetop {
+	from {top: 0%; opacity: 0}
+	to {top: 50%; opacity: 0.95}
 }
 
 @keyframes player {

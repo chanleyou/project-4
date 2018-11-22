@@ -1,7 +1,5 @@
 import * as React from 'react';
 
-import "./ui.scss";
-
 interface LogItem {
 	text: string;
 	color: string;
@@ -30,10 +28,10 @@ class Buttons extends React.Component<any, any> {
 	
 	render() {
 		return (
-			<div>
+			<span>
 				<button onClick={this.props.toggleInventory}><span className="amber">[I]</span> Inventory</button>
 				<button><span className="amber">[?]</span> Help</button>			
-			</div>
+			</span>
 		) 
 	}
 }
@@ -48,15 +46,15 @@ export class UI extends React.Component<Props, object> {
 		const player = this.props.player;
 		const princess = this.props.princess;
 
-		const log = this.props.log.map((item, index) => {
+		const log = this.props.log.map((item: LogItem, index) => {
 			return <p key={index + item.text} className={item.color}>{item.text}</p>
 		})
 
 		return (
 			<div className="ui">
-				<div className="info">
+				<div className="ui-box">
 					<h5>{player.name}</h5>
-					<p>Level 1 Knight &mdash; DL: {this.props.floor}</p>
+					<p>Floor: {this.props.floor}</p>
 					<div className="health-line">
 						<span>Life:</span>
 						<div className="health-bar">
@@ -65,7 +63,7 @@ export class UI extends React.Component<Props, object> {
 						</div>
 					</div>
 				</div>
-				<div className="info">
+				<div className="ui-box">
 					<h5>{princess.name}</h5>
 					<div className="health-line">
 						<span>Life:</span>
@@ -75,7 +73,7 @@ export class UI extends React.Component<Props, object> {
 						</div>
 					</div>
 				</div>
-				<div className="log">
+				<div className="ui-box log">
 					{log}
 				</div>
 				<Buttons toggleInventory={this.props.toggleInventory} />

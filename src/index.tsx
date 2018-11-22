@@ -9,6 +9,7 @@ import { UI } from './components/ui';
 import { Inventory } from './components/inventory';
 import { GameOver } from './components/gameover';
 import { Board } from './components/board';
+import { StartMenu } from './components/startmenu';
 
 const random = (min: number, max: number) => {
 	return min + Math.floor(Math.random() * (max - min + 1));
@@ -115,6 +116,7 @@ class HealPotion extends Item {
 }
 
 enum GameState {
+	StartMenu,
 	IsRunning,
 	Paused,
 	Inventory,
@@ -142,7 +144,6 @@ class Game extends React.Component<any, MyState> {
 	constructor(props: any) {
 		super(props);
 
-
 		this.createFloor = this.createFloor.bind(this);
 		this.controls = this.controls.bind(this);
 		this.playerMove = this.playerMove.bind(this);
@@ -157,9 +158,10 @@ class Game extends React.Component<any, MyState> {
 		this.calculateFOV = this.calculateFOV.bind(this);
 		this.toggleInventory = this.toggleInventory.bind(this);
 		this.useItem = this.useItem.bind(this);
+		this.setName = this.setName.bind(this);
 
 		let floor = this.createFloor(1);
-		let player = new Player('Test', floor.playerTile);
+		let player = new Player('Knight', floor.playerTile);
 		let princess = new Princess(floor.princessTile);
 
 		floor.playerTile.unit = player;
@@ -170,13 +172,20 @@ class Game extends React.Component<any, MyState> {
 			princess: princess,
 			board: floor.board,
 			floor: 1,
-			gameState: GameState.IsRunning,
+			gameState: GameState.StartMenu,
 			playerTurn: true,
 			turn: 1,
 			enemies: floor.enemies,
 			log: [],
 			inventory: [new HealPotion(this)]
 		}
+	}
+
+	setName(name: string) {
+		this.state.player.name = name;
+		this.setState({
+			gameState: GameState.IsRunning
+		})
 	}
 
 	createFloor(floor: number) {
@@ -327,6 +336,13 @@ class Game extends React.Component<any, MyState> {
 			case 53: // 5
 				this.wait()
 				break;
+			case 27: // escape
+				if (this.state.gameState === GameState.Inventory) {
+					this.setState({
+						gameState: GameState.IsRunning
+					})
+				}
+				break;
 		}
 	}
 
@@ -340,17 +356,19 @@ class Game extends React.Component<any, MyState> {
 	}
 
 	playerGainLife(unit: Unit, heal: number) {
-		unit.currentHP += heal;
-
-		if (unit.currentHP > unit.maxHP) {
-			unit.currentHP = unit.maxHP;
+		if (this.state.gameState !== GameState.Dead) {
+			unit.currentHP += heal;
+	
+			if (unit.currentHP > unit.maxHP) {
+				unit.currentHP = unit.maxHP;
+			}
 		}
 	}
 
 	nextFloor() {
 		let newFloor = this.createFloor(this.state.floor + 1);
 
-		this.updateLog(`Moving to DL:${this.state.floor + 1}.`);
+		this.updateLog(`Entering floor ${this.state.floor + 1}.`);
 
 		this.state.player.tile = newFloor.playerTile;
 		this.state.player.tile.unit = this.state.player;
@@ -535,7 +553,7 @@ class Game extends React.Component<any, MyState> {
 		this.state.log.push({ text: text, color: color });
 
 
-		while (this.state.log.length > 30) {
+		while (this.state.log.length > 40) {
 			this.state.log.shift();
 		}
 
@@ -612,9 +630,10 @@ class Game extends React.Component<any, MyState> {
 
 		return (
 			<div className="root">
+				<StartMenu gameState={this.state.gameState} setName={this.setName} />
 				<Inventory gameState={this.state.gameState} useItem={this.useItem} inventory={this.state.inventory} />
 				<GameOver gameState={this.state.gameState} />
-				<Board board={this.state.board} />
+				<Board board={this.state.board} player={this.state.player} />
 				<UI player={this.state.player} floor={this.state.floor} princess={this.state.princess} log={this.state.log} toggleInventory={this.toggleInventory} />
 			</div>
 		)
