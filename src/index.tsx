@@ -3,7 +3,7 @@ import * as ReactDOM from "react-dom";
 
 const ROT = require('rot-js');
 
-import './style.scss'; // global stylesheet... though all of them are
+import './style.scss'; // global stylesheet
 
 import { UI } from './components/ui';
 import { Inventory } from './components/inventory';
@@ -95,7 +95,7 @@ abstract class Item {
 
 class HealPotion extends Item {
 	game: Game;
-	icon = "flask_big_green";
+	icon = "heal-potion";
 	name = 'Healing Potion';
 	description = "Use to heal you or the princess for 7-10 life.";
 	effect = function (target: string) {
@@ -178,7 +178,7 @@ class Game extends React.Component<any, MyState> {
 			turn: 1,
 			enemies: floor.enemies,
 			log: [],
-			inventory: [new HealPotion(this)]
+			inventory: []
 		}
 	}
 
@@ -216,6 +216,18 @@ class Game extends React.Component<any, MyState> {
 
 		board[stairY][stairX].ground = 'stairs';
 
+		// 50% chance to place a chest in a different random room
+		for (let i = 0; i < random(0, 1); i++) {
+			let randomRoom2 = ROT.RNG.getItem(rooms);
+			while (randomRoom === randomRoom2) {
+				randomRoom2 = ROT.RNG.getItem(rooms);
+			}
+			let chestX = random(randomRoom2.getLeft(), randomRoom2.getRight());
+			let chestY = random(randomRoom2.getTop(), randomRoom2.getBottom());
+
+			board[chestY][chestX].ground = 'chest-closed';
+		}
+
 		// should rewrite this to place the player in a random room
 		let playerX = random(0, this.columns - 1);
 		let playerY = random(0, this.rows - 1);
@@ -244,10 +256,10 @@ class Game extends React.Component<any, MyState> {
 		const enemies: Enemy[] = [];
 
 		const monsters = {
-			"goblin": 2 + 5 / floor,
-			"orc": 3
+			"goblin": 5 / floor,
+			"orc": 3 + floor / 2,
 			// "skeleton": 2 + 0.1 * floor,
-			// "ogre": 1,
+			"ogre": floor / 2,
 		};
 
 		for (let n = 0; n < 1 + floor; n++) {
@@ -266,16 +278,19 @@ class Game extends React.Component<any, MyState> {
 				unit = new Enemy('Goblin', 4, unitTile, { min: 1, max: 2 });
 			} else if (monsterType === "orc") {
 				unit = new Enemy('Orc', 5, unitTile, { min: 1, max: 3 });
+			} else if (monsterType === "ogre") {
+				unit = new Enemy('Ogre', 10, unitTile, { min: 2, max: 4 });
 			}
 
 			enemies.push(unit);
 			// to be replaced with random enemy generation
 		}
 
+		// places spikes
 		for (let n = 0; n < random(1, 5); n++) {
 			let spikeTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 
-			while (spikeTile.unit || spikeTile.wall || spikeTile === princessTile || spikeTile === playerTile) {
+			while (spikeTile.unit || spikeTile.wall || spikeTile === princessTile || spikeTile === playerTile || spikeTile.ground === 'chest-closed') {
 				spikeTile = board[random(0, this.rows - 1)][random(0, this.columns - 1)];
 			}
 
@@ -411,6 +426,12 @@ class Game extends React.Component<any, MyState> {
 				this.updateLog(`The spikes hurt you for ${damage} damage!`, 'red');
 				this.playerLoseLife(this.state.player, damage);
 			}
+		}
+
+		if (!targetTile.unit && targetTile.ground === 'chest-closed') {
+			this.updateLog('You found a healing potion in the chest!', 'amber');
+			targetTile.ground = 'chest-open';
+			this.state.inventory.push(new HealPotion(this));
 		}
 
 		if (!targetTile.unit) {

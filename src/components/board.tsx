@@ -35,6 +35,7 @@ export class Board extends React.Component<Props, object> {
 			const rows = row.map((tile, colIndex) => {
 
 				let tileClass: string = 'tile';
+				let groundItem = null;
 				let unit = null;
 
 				// rewrite this logic tree later
@@ -60,6 +61,9 @@ export class Board extends React.Component<Props, object> {
 							case 'Goblin':
 								unit = <span className="goblin small-enemy unit" />
 								break;
+							case 'Ogre':
+								unit = <span className="ogre player-unit unit" />
+								break;
 						}
 					}
 				}
@@ -68,11 +72,16 @@ export class Board extends React.Component<Props, object> {
 					tileClass = 'stairs';
 				} else if (tile.explored && tile.ground === 'spikes') {
 					tileClass = 'spikes';
+				} else if (tile.explored && tile.ground === 'chest-closed') {
+					groundItem = <span className="chest-closed" />
+				} else if (tile.explored && tile.ground === 'chest-open') {
+					groundItem = <span className="chest-open" />
 				}
 
 				return (
 					<div className={tileClass} key={colIndex}>
 						{unit}
+						{groundItem}
 					</div>
 				)
 			})

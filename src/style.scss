@@ -86,7 +86,30 @@ $light-amber: #ffe082;
 				background-size: contain;
 				background-repeat: no-repeat;
 				background-position: center;
+				z-index: 2;
+			}
+
+			%chest {
+				display: inline-block;
+				position: absolute;
+				background-size: contain;
+				background-repeat: no-repeat;
+				background-position: center;
 				z-index: 1;
+				bottom: 15%;
+				left: 5%;
+				height: 90%;
+				width: 90%;
+			}
+
+			.chest-closed {
+				@extend %chest;
+				background-image: url('./sprites/chest_empty_open_anim_f0.png')
+			}
+
+			.chest-open {
+				@extend %chest;
+				background-image: url('./sprites/chest_empty_open_anim_f2.png')
 			}
 
 			.player-unit {
@@ -123,12 +146,22 @@ $light-amber: #ffe082;
 				animation: goblin 0.5s infinite;
 			}
 
+			.ogre {
+				background-image: url(./sprites/ogre_idle_anim_f0.png);
+				animation: ogre 0.5s infinite;
+			}
+
 			.fog {
 				display: inline-block;
 				width: 100%;
 				height: 100%;
-				background-color: rgba(0,0,0,0.35);
-				z-index: 2;
+				background-color: black;
+				opacity: 0.35;
+				z-index: 5;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
 			}
 		}
 	}	
@@ -320,8 +353,11 @@ $light-amber: #ffe082;
 		justify-content: space-between;
 		align-items: center;
 
-		img {
+		.icon {
 			background-color: black;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center;
 			display: inline-block;
 			border: 1px solid grey;
 			height: 32px;
@@ -332,10 +368,14 @@ $light-amber: #ffe082;
 			font-size: 1.25rem;
 		}
 
-		div {
+		.description {
 			margin: 0 0.5rem;
 			text-align: left;
 			flex-grow: 2;
+		}
+
+		.heal-potion {
+			background-image: url(./sprites/flask_big_green.png);
 		}
 	}
 }
@@ -403,4 +443,11 @@ button:active {
 	33% {background-image: url(./sprites/goblin_idle_anim_f1.png);}
 	67% {background-image: url(./sprites/goblin_idle_anim_f2.png);}
 	100% {background-image: url(./sprites/goblin_idle_anim_f3.png);}
+}
+
+@keyframes ogre {
+	0% {background-image: url(./sprites/ogre_idle_anim_f0.png);}
+	33% {background-image: url(./sprites/ogre_idle_anim_f1.png);}
+	67% {background-image: url(./sprites/ogre_idle_anim_f2.png);}
+	100% {background-image: url(./sprites/ogre_idle_anim_f3.png);}
 }

@@ -1,11 +1,11 @@
 {
-  "name": "react-express-app",
+  "name": "save-the-princess",
   "version": "1.0.0",
-  "description": "",
+  "description": "Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). Tileset courtesy of [0x72](https://0x72.itch.io/dungeontileset-ii).",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-		"heroku-postbuild": "webpack --config webpack.prod.js"
+    "heroku-postbuild": "webpack --config webpack.prod.js"
   },
   "keywords": [],
   "author": "",
@@ -36,5 +36,13 @@
     "webpack-cli": "^3.1.2",
     "webpack-dev-middleware": "^3.1.3",
     "webpack-hot-middleware": "^2.22.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chanleyou/project-4.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chanleyou/project-4/issues"
+  },
+  "homepage": "https://github.com/chanleyou/project-4#readme"
 }
