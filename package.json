@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-		"build": "webpack --config webpack.prod.js",
-		"dev": "webpack --config webpack.prod.js && node index.js"
+		"heroku-postbuild": "webpack --config webpack.prod.js"
   },
   "keywords": [],
   "author": "",
