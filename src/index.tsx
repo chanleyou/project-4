@@ -610,7 +610,6 @@ class Game extends React.Component<any, MyState> {
 	}
 
 	toggleState(state: GameState) {
-		console.log('firing!!!');
 		if (this.state.gameState === GameState.IsRunning) {
 			this.setState({
 				gameState: state
