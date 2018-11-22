@@ -46,8 +46,8 @@ export class StartMenu extends React.Component<Props, MyState> {
 				<div className="startmenu modal">
 					<div>
 						<h1>Save the Princess</h1>
-						<img src="../sprites/knight_f_idle_anim_f0.png" />
-						<img src="../sprites/elf_f_idle_anim_f0.png" />
+						<span className="knight" />
+						<span className="princess" />
 						<p>{this.state.introduction}</p>
 						<form onSubmit={() => { event.preventDefault(); this.props.setName(this.state.name) }}>
 							<label>{this.state.prompt}</label>

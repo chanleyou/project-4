@@ -215,8 +215,32 @@ $light-amber: #ffe082;
 	animation: none;
 
  div {
-	 width: 45%;
-	 height: 50%;
+		width: 45%;
+		height: 50%;
+
+		h1 {
+			margin-bottom: 0.5rem;
+		}
+
+		span {
+			height: 40px;
+			width: 32px;
+			z-index: 99;
+			display: inline-block;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center;
+		}
+
+		.knight {
+			background-image: url(./sprites/knight_f_idle_anim_f0.png);
+			animation: player 0.5s infinite;
+		}
+
+		.princess {
+			background-image: url(./sprites/elf_f_idle_anim_f0.png);
+			animation: princess 0.5s infinite;
+		}
 	}
 }
 
