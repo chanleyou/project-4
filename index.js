@@ -1,17 +1,18 @@
-const webpack = require('webpack');
 const path = require('path');
-const webpackDevMiddleware = require('webpack-dev-middleware');
 const express = require('express');
 const app = express();
 
-const webpackHotMiddleware = require('webpack-hot-middleware');
-const webpackConfig = require('./webpack.dev');
-const webpackProduction = require('./webpack.prod');
-const compiler = webpack(webpackConfig);
 
 const PORT = process.env.PORT || 3000;
 
 if (PORT === 3000) {
+
+	const webpack = require('webpack');
+	const webpackDevMiddleware = require('webpack-dev-middleware');
+	const webpackHotMiddleware = require('webpack-hot-middleware');
+	const webpackConfig = require('./webpack.dev');
+	const compiler = webpack(webpackConfig);
+	
 	console.log('Local development.');
 	
 	app.use(express.static('./src'));
@@ -28,7 +29,6 @@ if (PORT === 3000) {
 	app.use(webpackHotMiddleware(compiler));
 	
 } else {
-
 	console.log('Production.');
 
 	app.use(express.static('./dist'));
