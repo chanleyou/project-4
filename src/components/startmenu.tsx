@@ -49,7 +49,7 @@ export class StartMenu extends React.Component<Props, MyState> {
 						<span className="knight" />
 						<span className="princess" />
 						<p>{this.state.introduction}</p>
-						<form onSubmit={() => { event.preventDefault(); this.props.setName(this.state.name) }}>
+						<form onSubmit={(event) => { event.preventDefault(); this.props.setName(this.state.name) }}>
 							<label>{this.state.prompt}</label>
 							<input type="text" autoFocus autoComplete="off" onChange={this.changeHandler} name="name" value={this.state.name}></input>
 							<button type="submit" >Start Game</button>
