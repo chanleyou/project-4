@@ -1,7 +1,10 @@
 {
   "name": "save-the-princess",
   "version": "1.0.0",
-  "description": "Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). Tileset courtesy of [0x72](https://0x72.itch.io/dungeontileset-ii).",
+	"description": "Built with TypeScript, React and [rot.js](http://ondras.github.io/rot.js/hp/). Tileset courtesy of [0x72](https://0x72.itch.io/dungeontileset-ii).",
+	"engines": {
+		"node": "10.11.0"
+	},
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
