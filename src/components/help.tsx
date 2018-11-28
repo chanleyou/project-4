@@ -27,6 +27,7 @@ export class Help extends React.Component<Props, object> {
 						<li>Wait: <span className="amber">5</span></li>
 						<li>Stairs: <span className="amber">></span></li>
 					</ul>
+					<p>Press <span className="amber">ESC</span> or <span className="amber">?</span> to close.</p>
 				</div>
 			)
 		} else {

@@ -185,7 +185,7 @@ class Game extends React.Component<any, MyState> {
 	setName(name: string) {
 		this.state.player.name = name;
 		this.setState({
-			gameState: GameState.IsRunning
+			gameState: GameState.Paused
 		})
 	}
 
