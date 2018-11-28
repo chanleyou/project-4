@@ -19,7 +19,7 @@
 $header: 'Ovo', monospace;
 $monospace: 'Inconsolata', 'Consolas', 'Menlo', monospace;
 
-$tile: 32px;
+$tile: 36px;
 
 $grey: #9e9e9e;
 $dark-grey: #212121;
@@ -28,6 +28,11 @@ $light-red: #ef9a9a;
 $dark-green: #2e7d32;
 $light-green: #a5d6a7;
 $light-amber: #ffe082;
+
+p, label, input, span, li {
+	font-size: 1.1rem;
+	letter-spacing: 1px;
+}
 
 #app {
 	height: 100vh;
@@ -50,9 +55,6 @@ $light-amber: #ffe082;
 	text-align: center;
 	height: 100%;
 	width: 80%;
-	min-width: $tile * 34;
-	min-height: $tile * 20;
-	overflow: auto;
 	justify-content: center;
 
 	.row {
@@ -188,6 +190,11 @@ $light-amber: #ffe082;
 		overflow: auto;
 		flex-grow: 2;
 		font-size: 0.8rem;
+
+		p {
+			font-size: 1rem;
+			letter-spacing: 0px;
+		}
 	}
 
 	h5, p, .health-line {
@@ -196,7 +203,7 @@ $light-amber: #ffe082;
 
 	h5 {
 		font-family: $header;
-		font-size: 1.25rem;
+		font-size: 1.5rem;
 	}
 
 	.health-line {
@@ -209,7 +216,7 @@ $light-amber: #ffe082;
 			position: relative;
 			margin-left: 0.25rem;
 			width: 100%;
-			height: 1.25rem;
+			height: 1.375rem;
 			background-color: $red;
 		
 			.health-span {
